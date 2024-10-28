@@ -31,9 +31,10 @@ public class JwtSecurityConfig {
         http
             .cors().and().csrf().disable() // CORS와 CSRF 비활성화
             .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers("/api/test/**").permitAll() // /api/test 경로는 허용
-                    .requestMatchers("/api/auth/**").permitAll() // /api/auth 경로는 허용
-                    .requestMatchers("/h2-console/**").permitAll() // H2 콘솔 접근 허용
+//                    .requestMatchers("/api/test/**").permitAll() // /api/test 경로는 허용
+//                    .requestMatchers("/api/auth/**").permitAll() // /api/auth 경로는 허용
+//                    .requestMatchers("/h2-console/**").permitAll() // H2 콘솔 접근 허용
+                    .requestMatchers("/**").permitAll() // 모든 요청 허용
                     .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
             )
             .oauth2ResourceServer(oauth2 ->
