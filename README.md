@@ -19,20 +19,23 @@
 
 1. **의존성 설치**:
    ```bash
-   ./mvnw install
+   ./gradlew build
    ```
 2. **개발 서버 실행**:
    ```bash
-   ./mvnw spring-boot:run
+   ./gradlew bootRun
    ```
 개발 서버는 기본적으로 `http://localhost:8080`에서 실행됩니다.
 
 ## 환경 변수 설정
-프로젝트 루트에 .env 파일을 생성하고 다음과 같은 환경 변수를 설정합니다:
+이 프로젝트는 AWS Parameter Store를 통해 환경 변수를 관리합니다. 필요 변수는 AWS 콘솔의 Parameter Store에 설정해야 합니다. 필요한 변수 목록은 다음과 같습니다:
 
-```env
-# 업데이트 예정
-```
+- `DB_URL`: PostgreSQL 데이터베이스 URL
+- `DB_USERNAME`: PostgreSQL 사용자명
+- `DB_PASSWORD`: PostgreSQL 비밀번호
+- `JWT_SECRET`: JWT 토큰 서명용 비밀키
+- `OAUTH_KAKAO_CLIENT_ID`: Kakao 소셜 로그인 클라이언트 ID
+- `OAUTH_GOOGLE_CLIENT_ID`: Google 소셜 로그인 클라이언트 ID
 
 ## 주요 기능
 - 가짜 리뷰 검사 API: 입력된 블로그 URL을 AI 서버에 전달하고, 분석 결과를 반환합니다.
@@ -42,5 +45,5 @@
 ## Swagger 문서 확인
 API 문서는 Swagger를 통해 제공합니다. 애플리케이션을 실행한 후 다음 주소에서 확인할 수 있습니다:
 ```bash
-http://localhost:8080/swagger-ui.html
+http://localhost:8080/swagger-ui/index.html
 ```
