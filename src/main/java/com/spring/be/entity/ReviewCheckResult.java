@@ -8,7 +8,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "review_check_results")
 @Getter @Setter
-public class ReviewCheckResult {
+public class ReviewCheckResult extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long resultId;
