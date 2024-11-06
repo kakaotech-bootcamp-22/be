@@ -1,4 +1,4 @@
-﻿package com.spring.be.jwt.config;
+package com.spring.be.jwt.config;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWKSet;
