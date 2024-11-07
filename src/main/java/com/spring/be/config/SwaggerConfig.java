@@ -1,4 +1,4 @@
-package com.spring.be.swagger.config;
+package com.spring.be.config;
 
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.Components;
