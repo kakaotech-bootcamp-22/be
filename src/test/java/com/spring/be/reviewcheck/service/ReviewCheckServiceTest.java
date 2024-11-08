@@ -11,12 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
+//import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
 class ReviewCheckServiceTest {
 
     @Mock
@@ -44,7 +43,7 @@ class ReviewCheckServiceTest {
     void createReviewCheckResult_whenCacheExits() throws JsonProcessingException {
         // Given
         String blogUrl = "https://blog.naver.com/example/123456789";
-        String cacheKey = "reviewResult" + blogUrl;
+        String cacheKey = "reviewResult:" + blogUrl;
         ReviewCheckRequest request = new ReviewCheckRequest();
         request.setBlogUrl(blogUrl);
 
@@ -77,7 +76,7 @@ class ReviewCheckServiceTest {
     void createReviewCheckResult_WhenCacheDoesNotExist() {
         // Given
         String blogUrl = "https://blog.naver.com/example/123456789";
-        String cacheKey = "reviewResult" + blogUrl;
+        String cacheKey = "reviewResult:" + blogUrl;
         ReviewCheckRequest request = new ReviewCheckRequest();
         request.setBlogUrl(blogUrl);
 
@@ -88,7 +87,7 @@ class ReviewCheckServiceTest {
         ReviewCheckResult result = reviewCheckService.createReviewCheckResult(request);
 
         // Then
-        assertNull(result);
+        assertNotNull(result);
         assertEquals("Processing...", result.getSummaryTitle());
         assertEquals("The Review Analysis is in progress.", result.getSummaryText());
         assertEquals(-1, result.getScore());
@@ -108,7 +107,7 @@ class ReviewCheckServiceTest {
         result.setEvidence("New Evidence");
 
         String jsonResult = "{\"blogUrl\":\"http://example.com/review\",\"summaryTitle\":\"New Title\",\"summaryText\":\"New content\",\"score\":85,\"evidence\":\"New evidence\"}";
-        String cacheKey = "reviewResult" + blogUrl;
+        String cacheKey = "reviewResult:" + blogUrl;
 
         // Mock ObjectMapper에서 JSON 문자열로 변환
         when(objectMapper.writeValueAsString(result)).thenReturn(jsonResult);
