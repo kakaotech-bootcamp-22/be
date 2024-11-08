@@ -11,14 +11,18 @@ import java.util.concurrent.TimeUnit;
 public class RedisCacheUtil {
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    public void cacheResult(String key, ReviewCheckResult result) {
-        // 2시간 동안 캐싱
-        redisTemplate.opsForValue().set(key, result, 2, TimeUnit.HOURS);
+    public RedisCacheUtil(RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
     }
 
-    public ReviewCheckResult getCachedResult(String key) {
-        return (ReviewCheckResult) redisTemplate.opsForValue().get(key);
+    public void cacheResult(String key, String jsonValue) {
+        // 2시간 동안 캐싱
+        redisTemplate.opsForValue().set(key, jsonValue, 2, TimeUnit.HOURS);
+    }
+
+    public String getCachedResult(String key) {
+        return redisTemplate.opsForValue().get(key);
     }
 }

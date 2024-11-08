@@ -1,5 +1,7 @@
 package com.spring.be.reviewcheck.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.be.entity.ReviewCheckResult;
 import com.spring.be.reviewcheck.repository.ReviewCheckResultRepository;
 import com.spring.be.reviewcheck.utils.RedisCacheUtil;
@@ -30,6 +32,8 @@ public class ReviewQueueService {
 
     @Value("${ai.server.url}")
     private String aiServerUrl;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public ReviewQueueService(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
@@ -50,7 +54,7 @@ public class ReviewQueueService {
 
                 result = restTemplate.postForObject(aiServerUrl, requestPayload, ReviewCheckResult.class);
 
-                if (result != null) {
+                if (result == null) {
                     throw new RestClientException("Empty response from AI server");
                 }
             } catch (RestClientException e) {
@@ -59,9 +63,17 @@ public class ReviewQueueService {
             }
 
             // Redis에 결과를 캐싱하고 데이터베이스에 저장
-            String cacheKey = "reviewResult:" + blogUrl;
-            redisCacheUtil.cacheResult(cacheKey, result);
+            try {
+                String jsonResult = objectMapper.writeValueAsString(result);
+                String cacheKey = "reviewResult:" + blogUrl;
+                redisCacheUtil.cacheResult(cacheKey, jsonResult);
+            } catch (JsonProcessingException e) {
+                System.err.println("Error converting response to JSON" + e.getMessage());
+            }
+
+            // 데이터베이스에 저장
             reviewCheckResultRepository.save(result);
+
         }
     }
 
