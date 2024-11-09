@@ -13,6 +13,9 @@ public class ReviewCheckResult extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long resultId;
 
+    @Column(nullable = false, unique = true)
+    private String requestId;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

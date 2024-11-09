@@ -1,6 +1,7 @@
 package com.spring.be.reviewcheck.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.be.entity.ReviewCheckResult;
 import com.spring.be.reviewcheck.repository.ReviewCheckResultRepository;
@@ -32,48 +33,73 @@ public class ReviewQueueService {
 
     @Value("${ai.server.url}")
     private String aiServerUrl;
-    @Autowired
-    private ObjectMapper objectMapper;
 
-    public ReviewQueueService(RedisTemplate<String, String> redisTemplate) {
+    @Autowired
+    public ObjectMapper objectMapper;
+
+    @Autowired
+    public ReviewQueueService(RedisTemplate<String, String> redisTemplate, RedisCacheUtil redisCacheUtil,
+                              ReviewCheckResultRepository reviewCheckResultRepository, RestTemplate restTemplate,
+                              ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
+        this.redisCacheUtil = redisCacheUtil;
+        this.reviewCheckResultRepository = reviewCheckResultRepository;
+        this.restTemplate = restTemplate;
+        this.objectMapper = objectMapper;
     }
 
-    public void enqueueReviewCheckResult(String blogUrl) {
-        redisTemplate.opsForList().leftPush("reviewQueue", blogUrl);
+    public void enqueueReviewCheckResult(String requestId, String blogUrl) {
+        Map<String, String> requestPayload = new HashMap<>();
+        requestPayload.put("requestId", requestId);
+        requestPayload.put("blogUrl", blogUrl);
+
+        try {
+            String payloadJson = objectMapper.writeValueAsString(requestPayload);
+            redisTemplate.opsForList().leftPush("reviewQueue", payloadJson);
+        } catch (JsonProcessingException e) {
+            System.err.println("Error serializing request payload: " + e.getMessage());
+        }
     }
 
     public void processReviewQueue() {
-        String blogUrl = redisTemplate.opsForList().rightPop("reviewQueue");
-        if (blogUrl != null) {
-            // AI 서버와 통신하여 리뷰 검사 결과 가져오기
-            ReviewCheckResult result;
+        String payloadJson = redisTemplate.opsForList().rightPop("reviewQueue");
+
+        if (payloadJson != null) {
             try {
-                Map<String, String> requestPayload = new HashMap<>();
-                requestPayload.put("blogUrl", blogUrl);
+                Map<String, String> payload = objectMapper.readValue(payloadJson, new TypeReference<Map<String, String>>() {});
+                String requestId = payload.get("requestId");
+                String blogUrl = payload.get("blogUrl");
 
-                result = restTemplate.postForObject(aiServerUrl, requestPayload, ReviewCheckResult.class);
+                // AI 서버에 요청 전송 및 결과 수신
+                ReviewCheckResult result;
 
-                if (result == null) {
-                    throw new RestClientException("Empty response from AI server");
+                try {
+                    result = restTemplate.postForObject(aiServerUrl, payload, ReviewCheckResult.class);
+
+                    if (result == null) {
+                        throw new RestClientException("Empty response from AI server");
+                    }
+                    result.setRequestId(requestId);
+                } catch (RestClientException e) {
+                    result = createDefaultReviewCheckResult(blogUrl, "Error: Could not process the review");
+                    result.setRequestId(requestId);
+                    System.err.println("Error: " + e.getMessage());
                 }
-            } catch (RestClientException e) {
-                result = createDefaultReviewCheckResult(blogUrl, "Error: Could not process the review");
-                System.err.println("Error: " + e.getMessage());
-            }
 
-            // Redis에 결과를 캐싱하고 데이터베이스에 저장
-            try {
-                String jsonResult = objectMapper.writeValueAsString(result);
-                String cacheKey = "reviewResult:" + blogUrl;
-                redisCacheUtil.cacheResult(cacheKey, jsonResult);
+                // Redis에 검사 결과 캐싱
+                try {
+                    String jsonResult = objectMapper.writeValueAsString(result);
+                    String cacheKey = "reviewResult:" + requestId;
+                    redisCacheUtil.cacheResult(cacheKey, jsonResult);
+                } catch (JsonProcessingException e) {
+                    System.err.println("Error parsing request payload JSON: " + e.getMessage());
+                }
+
+                // 데이터베이스에 결과 저장
+                // reviewCheckResultRepository.save(result);
             } catch (JsonProcessingException e) {
-                System.err.println("Error converting response to JSON" + e.getMessage());
+                System.err.println("Error parsing request payload JSON: " + e.getMessage());
             }
-
-            // 데이터베이스에 저장
-            reviewCheckResultRepository.save(result);
-
         }
     }
 
