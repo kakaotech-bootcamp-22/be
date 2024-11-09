@@ -3,12 +3,11 @@ package com.spring.be.reviewcheck.controller;
 import com.spring.be.entity.ReviewCheckResult;
 import com.spring.be.reviewcheck.dto.ReviewCheckRequest;
 import com.spring.be.reviewcheck.service.ReviewCheckService;
+import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -31,5 +30,15 @@ public class ReviewCheckController {
         // AI 서버의 응답을 캐시 및 데이터베이스에 저장
         reviewCheckService.cachedReviewCheckResult(result.getRequestId(), result);
         return ResponseEntity.ok("AI response received and processed.");
+    }
+
+    @GetMapping("/{requestId}")
+    public ResponseEntity<ReviewCheckResult> getReviewCheckResult(@PathVariable String requestId) {
+        ReviewCheckResult result = reviewCheckService.getReviewCheckResult(requestId);
+        if (requestId != null) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(null);
+        }
     }
 }

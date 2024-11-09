@@ -70,4 +70,23 @@ public class ReviewCheckService {
             System.err.println("Error converting result to JSON: " + e.getMessage());
         }
     }
+
+
+    // 결과 조회
+    public ReviewCheckResult getReviewCheckResult(String requestId) {
+        String cacheKey = "reviewResult:" + requestId;
+
+        // Redis 캐시에서 조회
+        String cachedJson = redisCacheUtil.getCachedResult(cacheKey);
+        if (cachedJson != null) {
+            try {
+                return objectMapper.readValue(cachedJson, ReviewCheckResult.class);
+            } catch (JsonProcessingException e) {
+                System.err.println("Error parsing cached JSON: " + e.getMessage());
+            }
+        }
+
+        return null;
+    }
+
 }
