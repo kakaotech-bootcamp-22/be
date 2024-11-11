@@ -15,8 +15,6 @@ spec:
       labels:
         app: backend-server
     spec:
-      nodeSelector:
-        Type: "Backend"
       containers:
       - name: backend-server
         image: ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/backend-server:${TAG}
