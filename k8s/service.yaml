@@ -11,4 +11,4 @@ spec:
   ports:
   - port: 80
     targetPort: 8080
-  type: ClusterIP
+  type: LoadBalancer  # 외부 접근 해야 돼서 로드 밸런서로 수정
