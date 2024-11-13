@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,6 +17,9 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -29,12 +33,12 @@ public class JwtSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors().and().csrf().disable() // CORS와 CSRF 비활성화
+            .csrf().disable() // CORS와 CSRF 비활성화
             .authorizeHttpRequests(authorize -> authorize
 //                    .requestMatchers("/api/test/**").permitAll() // /api/test 경로는 허용
 //                    .requestMatchers("/api/auth/**").permitAll() // /api/auth 경로는 허용
 //                    .requestMatchers("/h2-console/**").permitAll() // H2 콘솔 접근 허용
-                    .requestMatchers("/**").permitAll() // 모든 요청 허용
+                    .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll() // 모든 요청 허용
                     .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
             )
             .oauth2ResourceServer(oauth2 ->
@@ -46,6 +50,20 @@ public class JwtSecurityConfig {
             .headers().frameOptions().disable(); // H2 콘솔을 위해 X-Frame-Options 비활성화
 
         return http.build();
+    }
+
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://localhost:3000"); // 허용할 도메인
+        configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
+        configuration.addAllowedHeader("*"); // 모든 헤더 허용
+        configuration.setAllowCredentials(true); // 자격 증명 허용
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
