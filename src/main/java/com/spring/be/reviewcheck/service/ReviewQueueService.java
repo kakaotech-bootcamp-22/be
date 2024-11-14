@@ -19,25 +19,16 @@ import java.util.Map;
 @Service
 public class ReviewQueueService {
 
-    @Autowired
     private final RedisTemplate<String, String> redisTemplate;
-
-    @Autowired
-    private RedisCacheUtil redisCacheUtil;
-
-    @Autowired
-    private ReviewCheckResultRepository reviewCheckResultRepository;
-
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RedisCacheUtil redisCacheUtil;
+    private final ReviewCheckResultRepository reviewCheckResultRepository;
+    private final RestTemplate restTemplate;
 
     @Value("${ai.server.url}")
     private String aiServerUrl;
 
-    @Autowired
     public ObjectMapper objectMapper;
 
-    @Autowired
     public ReviewQueueService(RedisTemplate<String, String> redisTemplate, RedisCacheUtil redisCacheUtil,
                               ReviewCheckResultRepository reviewCheckResultRepository, RestTemplate restTemplate,
                               ObjectMapper objectMapper) {
