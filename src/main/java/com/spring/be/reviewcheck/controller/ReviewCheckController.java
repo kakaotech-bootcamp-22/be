@@ -29,7 +29,7 @@ public class ReviewCheckController {
     public ResponseEntity<String> receiveAIResponse(@RequestBody ReviewCheckResult result) {
         // AI 서버의 응답을 캐시 및 데이터베이스에 저장
         reviewCheckService.cachedReviewCheckResult(result.getRequestId(), result);
-        return ResponseEntity.ok("AI response received and processed.");
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{requestId}")
