@@ -7,7 +7,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "result_feedback")
 @Getter @Setter
-public class ResultFeedback {
+public class ResultFeedback extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long feedbackId;

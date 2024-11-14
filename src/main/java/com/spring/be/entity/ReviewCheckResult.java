@@ -8,10 +8,13 @@ import lombok.Setter;
 @Entity
 @Table(name = "review_check_results")
 @Getter @Setter
-public class ReviewCheckResult {
+public class ReviewCheckResult extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long resultId;
+
+    @Column(nullable = false, unique = true)
+    private String requestId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
