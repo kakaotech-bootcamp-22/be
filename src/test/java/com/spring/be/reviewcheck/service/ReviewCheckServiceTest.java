@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 //import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.times;
@@ -46,11 +48,13 @@ class ReviewCheckServiceTest {
     void createReviewCheckResult_whenCacheExits() throws JsonProcessingException {
         // Given
         String blogUrl = "https://blog.naver.com/example/123456789";
+        String requestId = UUID.randomUUID().toString();
         String cacheKey = "reviewResult:" + blogUrl;
         ReviewCheckRequest request = new ReviewCheckRequest();
         request.setBlogUrl(blogUrl);
 
         ReviewCheckResult cachedResult = new ReviewCheckResult();
+        cachedResult.setRequestId(requestId);
         cachedResult.setBlogUrl(blogUrl);
         cachedResult.setSummaryTitle("Cached Title");
         cachedResult.setSummaryText("Cached Text");
@@ -72,7 +76,7 @@ class ReviewCheckServiceTest {
         assertEquals("Cached Text", result.getSummaryText());
         assertEquals(100, result.getScore());
         verify(redisCacheUtil, times(1)).getCachedResult(cacheKey);
-        verify(reviewQueueService, times(0)).enqueueReviewCheckResult(blogUrl);
+        verify(reviewQueueService, times(0)).enqueueReviewCheckResult(requestId, blogUrl);
     }
 
     @Test
@@ -80,6 +84,7 @@ class ReviewCheckServiceTest {
         // Given
         String blogUrl = "https://blog.naver.com/example/123456789";
         String cacheKey = "reviewResult:" + blogUrl;
+        String requestId = UUID.randomUUID().toString();
         ReviewCheckRequest request = new ReviewCheckRequest();
         request.setBlogUrl(blogUrl);
 
@@ -95,7 +100,7 @@ class ReviewCheckServiceTest {
         assertEquals("The Review Analysis is in progress.", result.getSummaryText());
         assertEquals(-1, result.getScore());
         verify(redisCacheUtil, times(1)).getCachedResult(cacheKey);
-        verify(reviewQueueService, times(1)).enqueueReviewCheckResult(blogUrl);
+        verify(reviewQueueService, times(1)).enqueueReviewCheckResult(requestId, blogUrl);
     }
 
     @Test
@@ -112,7 +117,7 @@ class ReviewCheckServiceTest {
         String jsonResult = "{\"blogUrl\":\"http://example.com/review\",\"summaryTitle\":\"New Title\",\"summaryText\":\"New content\",\"score\":85,\"evidence\":\"New evidence\"}";
         String cacheKey = "reviewResult:" + blogUrl;
 
-        // Mock ObjectMapper에서 JSON 문자열로 변환
+        // Mock ObjectMapper 에서 JSON 문자열로 변환
         when(objectMapper.writeValueAsString(result)).thenReturn(jsonResult);
 
         // When
