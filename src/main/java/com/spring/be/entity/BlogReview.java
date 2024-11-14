@@ -7,7 +7,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "blog_reviews")
 @Getter @Setter
-public class BlogReview {
+public class BlogReview extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long blogReviewId;
