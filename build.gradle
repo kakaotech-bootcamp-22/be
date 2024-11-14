@@ -24,9 +24,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    runtimeOnly 'org.postgresql:postgresql'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // JJWT 의존성 추가
@@ -37,6 +37,10 @@ dependencies {
     // Lombok 의존성 추가
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // Secret & Config
+    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.2.1")
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-parameter-store'
 }
 
 tasks.named('test') {
