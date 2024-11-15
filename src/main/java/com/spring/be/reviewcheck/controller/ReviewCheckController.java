@@ -18,11 +18,11 @@ public class ReviewCheckController {
     @Autowired
     private ReviewCheckService reviewCheckService;
 
-    // 사용자 요청 처리: 리뷰 검사 요청을 큐에 추가하고 기본 응답 반환
+    // 사용자 요청 처리: 리뷰 검사 요청을 비동기 큐에 추가하고 기본 응답 반환
     @PostMapping
     public ResponseEntity<ReviewCheckResult> createReviewCheck(@RequestBody ReviewCheckRequest request) {
         ReviewCheckResult reviewCheck = reviewCheckService.createReviewCheckResult(request);
-        return ResponseEntity.ok(reviewCheck);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(reviewCheck);
     }
 
     // AI 서버 응답 처리: 분석 결과를 캐싱하고 데이터베이스에 저장
@@ -39,7 +39,7 @@ public class ReviewCheckController {
         if (requestId != null) {
             return ResponseEntity.ok(result);
         } else {
-            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 }
