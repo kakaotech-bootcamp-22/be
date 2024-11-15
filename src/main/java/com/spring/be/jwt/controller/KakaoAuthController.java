@@ -1,11 +1,9 @@
 package com.spring.be.jwt.controller;
 
+import com.spring.be.jwt.service.AuthService;
 import com.spring.be.jwt.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,10 +19,13 @@ public class KakaoAuthController {
     private final String KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me";
 
     private final UserService userService;
+    private final AuthService authService;
+
 
     @Autowired
-    public KakaoAuthController(UserService userService) {
+    public KakaoAuthController(UserService userService, AuthService authService) {
         this.userService = userService;
+        this.authService = authService;
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
@@ -73,10 +74,25 @@ public class KakaoAuthController {
         System.out.println("Nickname:" + nickname);
         System.out.println("Profile Image URL:" + profileImage);
 
-        // 소셜로그인 플랫폼, 소셜 계정 아이디, 닉네임, 이메일??
+        // 소셜로그인 플랫폼, 소셜 계정 아이디, 닉네임, 프로필 이미지 DB에 저장
         userService.saveUser(platform, kakaoUserId, nickname, profileImage);
 
-        return ResponseEntity.ok("카카오 토큰 처리 완료"+ kakaoUserId+","+ nickname+ ","+profileImage);
-        //return ResponseEntity.ok("카카오 토큰 처리 완료");
+        // JWT 생성
+        String userId = String.valueOf(kakaoUserId);
+        String jwtToken = authService.generateToken(userId);
+
+        // JWT를 쿠키에 설정
+
+        ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", jwtToken)
+                .httpOnly(true) // JavaScript 접근 불가
+                .secure(false) // HTTPS에서만 전송 (필요에 따라 설정)
+                .path("/") // 모든 경로에서 유효
+                .maxAge(60 * 60 * 24) // 24시간 유효
+                .sameSite("Strict") // CSRF 방지 설정
+                .build();
+
+        return ResponseEntity.ok()
+                .header("Set-Cookie", jwtCookie.toString())
+                .body("{\"message\": \"카카오 토큰 처리 완료\", \"jwtToken\": \"" + jwtToken + "\", \"nickname\": \"" + nickname + "\", \"profileImage\": \"" + profileImage + "\"}");
     }
 }
