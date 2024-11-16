@@ -75,7 +75,7 @@ public class KakaoAuthController {
         System.out.println("Profile Image URL:" + profileImage);
 
         // 소셜로그인 플랫폼, 소셜 계정 아이디, 닉네임, 프로필 이미지 DB에 저장
-        userService.saveUser(platform, kakaoUserId, nickname, profileImage);
+        userService.saveUser(platform, kakaoUserId, nickname, profileImage, kakaoAccessToken);
 
         // JWT 생성
         String userId = String.valueOf(kakaoUserId);
@@ -93,6 +93,6 @@ public class KakaoAuthController {
 
         return ResponseEntity.ok()
                 .header("Set-Cookie", jwtCookie.toString())
-                .body("{\"message\": \"카카오 토큰 처리 완료\", \"jwtToken\": \"" + jwtToken + "\", \"nickname\": \"" + nickname + "\", \"profileImage\": \"" + profileImage + "\"}");
+                .body("{\"message\": \"카카오 토큰 처리 완료\", \"jwtToken\": \"" + jwtToken + "\", \"nickname\": \"" + nickname + "\", \"profileImage\": \"" + profileImage + "\",  \"kakaoAccessToken\": \"" + kakaoAccessToken + "\" }");
     }
 }
