@@ -1,6 +1,7 @@
 package com.spring.be.jwt.controller;
 
 import com.spring.be.jwt.service.AuthService;
+import com.spring.be.jwt.service.AuthService;
 import com.spring.be.jwt.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
