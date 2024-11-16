@@ -31,12 +31,17 @@ public class User extends BaseEntity {
     @Column(nullable = true, length = 255)
     private String userImage;
 
-    public User(String socialPlatform, Long socialId, String nickname, String profileImage){
+    @Column(nullable = true, length = 500) // Access Token은 길이가 길 수 있으므로 넉넉하게 설정
+    private String kakaoAccessToken;
+
+
+    public User(String socialPlatform, Long socialId, String nickname, String profileImage, String kakaoAccessToken){
         this.socialPlatform = socialPlatform;
         this.socialId = socialId;
         this.nickname = nickname;
         this.userImage = profileImage;
         this.isDeleted = false;
+        this.kakaoAccessToken = kakaoAccessToken;
 
     }
 
