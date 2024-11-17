@@ -8,6 +8,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigInteger;
 import java.sql.SQLOutput;
 import java.util.Map;
 
@@ -33,7 +34,6 @@ public class KakaoAuthController {
     @PostMapping("/token")
     public ResponseEntity<String> handleKakaoToken(@RequestBody Map<String, String> request) {
         String authorizationCode = request.get("code"); // 클라이언트에서 넘어온 인가 코드
-        System.out.println("Received Kakao authorization code(인가코드): " + authorizationCode); // 인가 코드 확인
 
         // 액세스 토큰을 요청할 URL 구성
         String clientId = "826a723547312cf55037f1bf217f293b"; // 카카오 앱의 클라이언트 ID
@@ -53,9 +53,6 @@ public class KakaoAuthController {
         ResponseEntity<Map> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, entity, Map.class);
         String kakaoAccessToken = (String) response.getBody().get("access_token");
 
-        // 액세스 토큰 로그 출력 (디버깅)
-        System.out.println("Received Kakao access token(액세스토큰): " + kakaoAccessToken);
-
         // 카카오 사용자 정보 API 호출
         HttpHeaders userInfoHeaders = new HttpHeaders();
         userInfoHeaders.set("Authorization", "Bearer " + kakaoAccessToken);
@@ -69,21 +66,16 @@ public class KakaoAuthController {
         String nickname = (String) properties.get("nickname"); // 사용자 닉네임
         String profileImage = (String) properties.get("profile_image"); // 프로필 이미지
         String platform = "kakao";
-
-        // 로그 출력
-        System.out.println("Kakao User ID:" + kakaoUserId);
-        System.out.println("Nickname:" + nickname);
-        System.out.println("Profile Image URL:" + profileImage);
+        BigInteger bigkakaoUserId = BigInteger.valueOf(kakaoUserId);
 
         // 소셜로그인 플랫폼, 소셜 계정 아이디, 닉네임, 프로필 이미지 DB에 저장
-        userService.saveUser(platform, kakaoUserId, nickname, profileImage, kakaoAccessToken);
+        userService.saveUser(platform, bigkakaoUserId, nickname, profileImage, kakaoAccessToken);
 
         // JWT 생성
         String userId = String.valueOf(kakaoUserId);
         String jwtToken = authService.generateToken(userId);
 
         // JWT를 쿠키에 설정
-
         ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", jwtToken)
                 .httpOnly(true) // JavaScript 접근 불가
                 .secure(false) // HTTPS에서만 전송 (필요에 따라 설정)
@@ -94,6 +86,6 @@ public class KakaoAuthController {
 
         return ResponseEntity.ok()
                 .header("Set-Cookie", jwtCookie.toString())
-                .body("{\"message\": \"카카오 토큰 처리 완료\", \"jwtToken\": \"" + jwtToken + "\", \"nickname\": \"" + nickname + "\", \"profileImage\": \"" + profileImage + "\",  \"kakaoAccessToken\": \"" + kakaoAccessToken + "\" }");
+                .body("{\"message\": \"카카오 토큰 처리 완료\", \"jwtToken\": \"" + jwtToken + "\", \"nickname\": \"" + nickname + "\", \"profileImage\": \"" + profileImage + "\",  \"kakaoAccessToken\": \"" + kakaoAccessToken + "\", \"platform\":  \"" + platform + "\"}");
     }
 }
