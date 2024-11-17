@@ -3,6 +3,8 @@ package com.spring.be.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigInteger;
+
 @Entity
 @Table(name = "users")
 @Getter @Setter
@@ -17,7 +19,7 @@ public class User extends BaseEntity {
     private String socialPlatform;
 
     @Column(nullable = false)
-    private Long socialId;
+    private BigInteger socialId;
 
     @Column(nullable = false, length = 30)
     private String nickname;
@@ -32,16 +34,16 @@ public class User extends BaseEntity {
     private String userImage;
 
     @Column(nullable = true, length = 500) // Access Token은 길이가 길 수 있으므로 넉넉하게 설정
-    private String kakaoAccessToken;
+    private String accessToken;
 
 
-    public User(String socialPlatform, Long socialId, String nickname, String profileImage, String kakaoAccessToken){
+    public User(String socialPlatform, BigInteger socialId, String nickname, String profileImage, String accessToken){
         this.socialPlatform = socialPlatform;
         this.socialId = socialId;
         this.nickname = nickname;
         this.userImage = profileImage;
         this.isDeleted = false;
-        this.kakaoAccessToken = kakaoAccessToken;
+        this.accessToken = accessToken;
 
     }
 
