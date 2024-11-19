@@ -1,4 +1,4 @@
-package com.spring.be.jwt.repository;
+package com.spring.be.user.repository;
 
 import com.spring.be.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
