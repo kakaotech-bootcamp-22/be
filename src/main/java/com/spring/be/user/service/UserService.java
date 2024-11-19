@@ -1,11 +1,13 @@
-package com.spring.be.jwt.service;
+package com.spring.be.user.service;
 
 import com.spring.be.entity.User;
-import com.spring.be.jwt.repository.UserRepository;
+import com.spring.be.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -24,8 +26,8 @@ public class UserService {
 
         if (existingUser != null) {
             // 기존 사용자 정보 업데이트
-            existingUser.setNickname(nickname);
-            existingUser.setUserImage(profileImage);
+//            existingUser.setNickname(nickname);
+//            existingUser.setUserImage(profileImage);
             existingUser.setAccessToken(AccessToken);
             return userRepository.save(existingUser);
         } else {
@@ -35,9 +37,24 @@ public class UserService {
         }
     }
 
+
+
     public User findBySocialId(BigInteger socialId) {
         return userRepository.findBySocialId(socialId);
     }
+
+    public User saveUserProfile(User user, String newNickname, String newProfileImage) {
+        if (newNickname != null && !newNickname.isEmpty()) {
+            user.setNickname(newNickname);
+        }
+        if (newProfileImage != null && !newProfileImage.isEmpty()) {
+            user.setUserImage(newProfileImage);
+        }
+        return userRepository.save(user);
+    }
+
+
+
 
 
 }
