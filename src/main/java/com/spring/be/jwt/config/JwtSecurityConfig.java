@@ -33,7 +33,7 @@ public class JwtSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable() // CORS와 CSRF 비활성화
+            .csrf().disable() // CSRF 비활성화
             .authorizeHttpRequests(authorize -> authorize
 //                    .requestMatchers("/api/test/**").permitAll() // /api/test 경로는 허용
 //                    .requestMatchers("/api/auth/**").permitAll() // /api/auth 경로는 허용
