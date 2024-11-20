@@ -17,15 +17,16 @@ public class UserLoginStatusDto {
     private String platform;
     @JsonSerialize(using = CustomLocalDateTimeSerializer.class) // Custom serializer 적용
     private LocalDateTime createdAt;
+    private String email;
 
-    public UserLoginStatusDto(boolean isLoggedIn, String message, String nickname, String userImage, String platform, LocalDateTime createdAt) {
+    public UserLoginStatusDto(boolean isLoggedIn, String message, String nickname, String userImage, String platform, LocalDateTime createdAt, String email) {
         this.isLoggedIn = isLoggedIn;
         this.message = message;
         this.nickname = nickname;
         this.userImage = userImage;
         this.platform = platform;
         this.createdAt = createdAt;
-        System.out.println("UserLoginStatusDto createdAt: " + createdAt); // 로그 추가
+        this.email = email;
     }
 
     @Override
@@ -36,7 +37,8 @@ public class UserLoginStatusDto {
                 ", nickname='" + nickname + '\'' +
                 ", userImage='" + userImage + '\'' +
                 ", platform='" + platform + '\'' +
-                ", createdAt=" + createdAt +
+                ", createdAt=" + createdAt + '\'' +
+                ", email='" + email+
                 '}';
     }
 }
