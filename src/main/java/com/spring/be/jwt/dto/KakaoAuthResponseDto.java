@@ -18,8 +18,9 @@ public class KakaoAuthResponseDto {
     private String platform;
     @JsonSerialize(using = CustomLocalDateTimeSerializer.class) // Custom serializer 적용
     private LocalDateTime createdAt;
+    private String email;
 
-    public KakaoAuthResponseDto(String message, String jwtToken, String nickname, String profileImage, String kakaoAccessToken, String platform, LocalDateTime createdAt) {
+    public KakaoAuthResponseDto(String message, String jwtToken, String nickname, String profileImage, String kakaoAccessToken, String platform, LocalDateTime createdAt, String email) {
         this.message = message;
         this.jwtToken = jwtToken;
         this.nickname = nickname;
@@ -27,5 +28,6 @@ public class KakaoAuthResponseDto {
         this.kakaoAccessToken = kakaoAccessToken;
         this.platform = platform;
         this.createdAt = createdAt;
+        this.email = email;
     }
 }
