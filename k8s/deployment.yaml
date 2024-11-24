@@ -1,8 +1,7 @@
-# backend-server/k8s/deployment.yaml
 apiVersion: v1
-kind: ServiceAccount # 파라미터 스토어 관련 
+kind: ServiceAccount
 metadata:
-  name: backend-server 
+  name: backend-server
   annotations:
     eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/${var.cluster_name}-parameter-store-role
 ---
@@ -40,7 +39,15 @@ spec:
             name: rds-credentials
         livenessProbe:
           httpGet:
-            path: /actuator/health
+            path: /actuator/health   # Liveness Probe는 서버가 살아있는지 체크
             port: 8080
-          initialDelaySeconds: 30
+          initialDelaySeconds: 60  
           periodSeconds: 10
+          failureThreshold: 5      
+        readinessProbe:
+          httpGet:
+            path: /actuator/ready    # Readiness Probe는 준비 상태를 체크
+            port: 8080
+          initialDelaySeconds: 30  
+          periodSeconds: 10
+          failureThreshold: 3
