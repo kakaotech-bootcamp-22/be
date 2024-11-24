@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,14 +30,9 @@ public class S3Controller {
 
 
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadProfileImage(@RequestParam("file") MultipartFile file) {
-        try {
-            String fileUrl = s3Service.uploadFile(file);
-            System.out.println("보내기전에 확인" + fileUrl);
-            S3ResponseDto responseDto = new S3ResponseDto(fileUrl);
-            return ResponseEntity.ok(responseDto);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error uplading file: " + e.getMessage());
-        }
+    public ResponseEntity<?> uploadProfileImage(@RequestParam("file") MultipartFile file) throws IOException {
+        String fileUrl = s3Service.uploadFile(file);
+        S3ResponseDto responseDto = new S3ResponseDto(fileUrl);
+        return ResponseEntity.ok(responseDto);
     }
 }
