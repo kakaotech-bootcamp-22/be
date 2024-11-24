@@ -84,7 +84,6 @@ public class AuthService {
 
         // 카카오 로그아웃 API 호출
         String kakaoAccessToken = user.getAccessToken();
-        System.out.println("kakaoAccessToken 확인해보자 카카오액세스토큰"+ kakaoAccessToken);
         String kakaoLogoutUrl = "https://kapi.kakao.com/v1/user/logout";
         RestTemplate restTemplate = new RestTemplate();
 
