@@ -13,7 +13,7 @@ public class FileUploadConfig {
     public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
         factory.setMaxFileSize(DataSize.ofMegabytes(5)); // 최대 파일 크기 5MB
-        factory.setMaxRequestSize(DataSize.ofMegabytes(5)); // 최대 요청 크기 5MB
+        factory.setMaxRequestSize(DataSize.ofMegabytes(8)); // 최대 요청 크기 5MB
 
         return factory.createMultipartConfig();
     }
