@@ -44,9 +44,10 @@ spec:
           initialDelaySeconds: 60  
           periodSeconds: 10
           failureThreshold: 5      
+        
         readinessProbe:
           httpGet:
-            path: /actuator/ready    # Readiness Probe는 준비 상태를 체크
+            path: /actuator/health    # Readiness Probe도 동일한 엔드포인트 사용 (임시)
             port: 8080
           initialDelaySeconds: 30  
           periodSeconds: 10
