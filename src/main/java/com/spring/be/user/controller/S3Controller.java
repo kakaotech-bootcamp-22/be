@@ -28,9 +28,8 @@ public class S3Controller {
         this.jwtUtils = jwtUtils;
     }
 
-
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadProfileImage(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<S3ResponseDto> uploadProfileImage(@RequestParam("file") MultipartFile file) throws IOException {
         String fileUrl = s3Service.uploadFile(file);
         S3ResponseDto responseDto = new S3ResponseDto(fileUrl);
         return ResponseEntity.ok(responseDto);
