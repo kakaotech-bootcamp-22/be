@@ -15,10 +15,18 @@ import java.util.UUID;
 @Service
 public class ReviewCheckService {
 
+    @Autowired
     private ReviewCheckResultRepository reviewCheckResultRepository;
+
+    @Autowired
     private RedisCacheUtil redisCacheUtil;
+
+    @Autowired
     private ReviewQueueService reviewQueueService;
+
+    @Autowired
     private ObjectMapper jacksonObjectMapper;
+
     @Qualifier("objectMapper")
     private ObjectMapper objectMapper;
 
