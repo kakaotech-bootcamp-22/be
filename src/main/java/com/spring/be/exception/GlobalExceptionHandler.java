@@ -41,14 +41,14 @@ public class GlobalExceptionHandler {
     // 파일 업로드 중 오류 처리
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<String> handleFileUploadException(MultipartException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("파일 업로드 중 오류가 발생했습니다: " + ex.getMessage());
     }
 
     // 파일 크기 초과 예외 처리
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<String> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
                 .body("파일 크기가 너무 큽니다. 제한 크기를 확인하세요." + ex.getMessage());
     }
 
