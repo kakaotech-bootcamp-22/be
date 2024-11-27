@@ -1,4 +1,11 @@
 # backend-server/k8s/deployment.yaml
+apiVersion: v1
+kind: ServiceAccount # 파라미터 스토어 관련 
+metadata:
+  name: backend-server
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/${var.cluster_name}-parameter-store-role
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,6 +22,7 @@ spec:
       labels:
         app: backend-server
     spec:
+      serviceAccountName: backend-server
       containers:
       - name: backend-server
         image: ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/backend-server:${TAG}
