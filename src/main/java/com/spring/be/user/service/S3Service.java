@@ -1,5 +1,6 @@
 package com.spring.be.user.service;
 
+import com.spring.be.config.AwsProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,17 +18,11 @@ import java.util.UUID;
 public class S3Service {
 
     private final S3Client s3Client;
+    private final AwsProperties awsProperties;
 
-    @Value("${spring.cloud.aws.s3.bucket-name}")
-    private String bucketName;
-
-    @Value("${spring.cloud.aws.region.static}")
-    String region;
-
-
-    @Autowired
-    public S3Service(S3Client s3Client) {
+    public S3Service(S3Client s3Client, AwsProperties awsProperties) {
         this.s3Client = s3Client;
+        this.awsProperties = awsProperties;
     }
 
     public String uploadFile(MultipartFile file) throws IOException {
@@ -39,13 +34,13 @@ public class S3Service {
 
         s3Client.putObject(
                 PutObjectRequest.builder()
-                    .bucket(bucketName)
+                    .bucket(awsProperties.getBucketName())
                     .key(fileName)
                     .build(),
                 tempFile
         );
         // 업로드된 객체의 URL 반환
-        String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
+        String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", awsProperties.getBucketName(),  awsProperties.getRegion(),  fileName);
         System.out.println("업로드 성공, URL: " + fileUrl);
 
         // 임시 파일 삭제
