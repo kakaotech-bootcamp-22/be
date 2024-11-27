@@ -67,7 +67,6 @@ public class AuthService {
 
     public ResponseEntity<?> performKakaoLogout(String token) {
         // 쿠키에서 JWT 추출
-        System.out.println("확인해보자 쿠키"+ token);
         if (token == null || !jwtUtils.validateJwtToken(token)) {
             return ResponseEntity.status(401).body(Map.of("message", "Invalid or expired token."));
         }
@@ -184,11 +183,6 @@ public class AuthService {
         // 사용자 정보 저장
         userService.saveUser(platform, bigGoogleUserId, name, profileImage, googleAccessToken, email);
 
-        User user = userService.findBySocialId(bigGoogleUserId);
-        if (user != null) {
-            profileImage = user.getUserImage();
-        }
-
         // JWT 생성
         String jwtToken = generateTokenForUser(bigGoogleUserId);
 
@@ -216,6 +210,7 @@ public class AuthService {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<Map> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, entity, Map.class);
+
         String kakaoAccessToken = (String) response.getBody().get("access_token");
 
         // 사용자 정보 요청
@@ -234,8 +229,6 @@ public class AuthService {
         String email = (String) kakaoAccount.get("email");
         String platform = "kakao";
         BigInteger bigkakaoUserId = BigInteger.valueOf(kakaoUserId);
-
-        System.out.println("이메일"+email);
 
         // 사용자 정보 저장
         userService.saveUser(platform, bigkakaoUserId, nickname, profileImage, kakaoAccessToken, email);
