@@ -40,6 +40,10 @@ spec:
           value: "prod"
         - name: AWS_REGION
           value: "ap-northeast-2"
+        - name: SPRING_REDIS_HOST
+          value: "redis-service"
+        - name: SPRING_REDIS_PORT
+          value: "6379"
         envFrom:
         - secretRef:
             name: rds-credentials
