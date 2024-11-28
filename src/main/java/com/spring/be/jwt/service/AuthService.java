@@ -33,6 +33,9 @@ public class AuthService {
     @Value("${REACT_APP_GOOGLE_CLIENT_ID:default-value}")
     private String googleClientId;
 
+    @Value("${spring.redirectUri}")
+    private String redirectUri;
+
     @Autowired
     public AuthService(JwtUtils jwtUtils, UserService userService) {
         this.jwtUtils = jwtUtils;
@@ -199,7 +202,6 @@ public class AuthService {
 
     public KakaoAuthResponseDto authenticateKakaoUser(String authorizationCode) {
         // 액세스 토큰 요청
-        String redirectUri = "http://localhost:3000/";
         String tokenUrl = KAKAO_TOKEN_URL +
                 "?grant_type=authorization_code" +
                 "&client_id=" + kakaoJsKey +
