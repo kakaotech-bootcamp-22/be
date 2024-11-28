@@ -61,7 +61,7 @@ public class AuthService {
         }
 
         return ResponseEntity.ok().body(new UserLoginStatusDto(
-                true, "User is logged in.", user.getNickname(), user.getUserImage(), user.getSocialPlatform(), user.getCreatedAt()
+                true, "User is logged in.", user.getNickname(), user.getUserImage(), user.getSocialPlatform(), user.getCreatedAt(), user.getEmail()
         ));
     }
 
@@ -174,14 +174,14 @@ public class AuthService {
         // 사용자 정보 가져오기
         Map<String, Object> userInfo = response.getBody();
         String googleUserId = (String) userInfo.get("sub");
-        String name = (String) userInfo.get("nickname");
+        String name = (String) userInfo.get("name");
         String email = (String) userInfo.get("email");
-        String profileImage = (String) userInfo.get("profile_image");
+        String profileImage = (String) userInfo.get("picture");
         BigInteger bigGoogleUserId = new BigInteger(googleUserId);
         String platform = "google";
 
         // 사용자 정보 저장
-        userService.saveUser(platform, bigGoogleUserId, name, profileImage, googleAccessToken);
+        userService.saveUser(platform, bigGoogleUserId, name, profileImage, googleAccessToken, email);
 
         // JWT 생성
         String jwtToken = generateTokenForUser(bigGoogleUserId);
@@ -192,7 +192,8 @@ public class AuthService {
                 name,
                 profileImage,
                 googleAccessToken,
-                platform
+                platform,
+                email
         );
     }
 
@@ -209,6 +210,7 @@ public class AuthService {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<Map> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, entity, Map.class);
+
         String kakaoAccessToken = (String) response.getBody().get("access_token");
 
         // 사용자 정보 요청
@@ -223,16 +225,21 @@ public class AuthService {
         Map<String, Object> properties = (Map<String, Object>) userInfo.get("properties");
         String nickname = (String) properties.get("nickname");
         String profileImage = (String) properties.get("profile_image");
+        Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.get("kakao_account");
+        String email = (String) kakaoAccount.get("email");
         String platform = "kakao";
         BigInteger bigkakaoUserId = BigInteger.valueOf(kakaoUserId);
 
         // 사용자 정보 저장
-        userService.saveUser(platform, bigkakaoUserId, nickname, profileImage, kakaoAccessToken);
+        userService.saveUser(platform, bigkakaoUserId, nickname, profileImage, kakaoAccessToken, email);
 
         // JWT 생성
         String jwtToken = generateTokenForUser(bigkakaoUserId);
 
         User user = userService.findBySocialId(bigkakaoUserId);
+        if (user != null) {
+            profileImage = user.getUserImage();
+        }
 
         return new KakaoAuthResponseDto(
                 "카카오 토큰 처리 완료",
@@ -241,7 +248,8 @@ public class AuthService {
                 profileImage,
                 kakaoAccessToken,
                 platform,
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                email
         );
     }
 

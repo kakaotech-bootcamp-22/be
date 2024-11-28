@@ -2,6 +2,7 @@ package com.spring.be.user.controller;
 
 import com.spring.be.entity.User;
 import com.spring.be.jwt.config.JwtUtils;
+import com.spring.be.user.service.S3Service;
 import com.spring.be.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,11 +18,13 @@ import java.util.Map;
 public class UserController {
 
     private final JwtUtils jwtUtils;
+    private final S3Service s3Service;
 
     @Autowired
-    public UserController(JwtUtils jwtUtils, UserService userService) {
+    public UserController(JwtUtils jwtUtils, UserService userService, S3Service s3Service) {
         this.jwtUtils = jwtUtils;
         this.userService = userService;
+        this.s3Service = s3Service;
     }
 
     @Autowired
@@ -53,9 +56,8 @@ public class UserController {
             }
 
             user.setNickname(nickname);
-
             // 프로필 이미지 처리 (파일 저장 또는 URL 저장)
-            System.out.println("check"+profileImage);
+
             if (profileImage != null && !profileImage.isEmpty()) {
                 user.setUserImage(profileImage);
             }
