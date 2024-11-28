@@ -29,8 +29,6 @@ public class UserService {
         if (existingUser != null) {
             // 기존 사용자 정보 업데이트
             existingUser.setAccessToken(AccessToken);
-            existingUser.setNickname(nickname); // 필요한 경우 추가 정보 업데이트
-            existingUser.setUserImage(profileImage);
             return userRepository.save(existingUser);
         }
         try {
