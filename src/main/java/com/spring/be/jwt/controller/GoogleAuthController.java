@@ -3,6 +3,7 @@ package com.spring.be.jwt.controller;
 import com.spring.be.jwt.dto.GoogleAuthResponseDto;
 import com.spring.be.jwt.service.AuthService;
 import com.spring.be.user.service.UserService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
