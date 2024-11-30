@@ -3,10 +3,12 @@ package com.spring.be.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "blog_reviews")
 @Getter @Setter
+@ToString
 public class BlogReview extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +30,4 @@ public class BlogReview extends BaseEntity {
 
     @Column(nullable = false)
     private Integer likesCnt;
-
-    // Getters and Setters
 }
