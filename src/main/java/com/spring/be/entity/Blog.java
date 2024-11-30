@@ -18,6 +18,4 @@ public class Blog extends BaseEntity {
 
     @Column(nullable = false)
     private Integer reviewCount;
-
-    // Getters and Setters
 }

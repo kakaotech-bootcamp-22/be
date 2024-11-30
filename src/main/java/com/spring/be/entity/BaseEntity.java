@@ -38,6 +38,4 @@ public abstract class BaseEntity {
 
     @Column
     private LocalDateTime deletedAt;
-
-    // Getters and Setters
 }
