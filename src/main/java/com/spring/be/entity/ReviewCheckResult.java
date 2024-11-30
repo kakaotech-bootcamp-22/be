@@ -34,6 +34,4 @@ public class ReviewCheckResult extends BaseEntity {
 
     @Column(length = 250)
     private String evidence;
-
-    // Getters and Setters
 }
