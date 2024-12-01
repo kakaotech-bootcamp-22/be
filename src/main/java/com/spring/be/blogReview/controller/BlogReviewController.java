@@ -1,6 +1,7 @@
 package com.spring.be.blogReview.controller;
 
 import com.spring.be.blogReview.dto.BlogReviewResponseDto;
+import com.spring.be.blogReview.dto.ReviewLikeRequest;
 import com.spring.be.blogReview.dto.ReviewRequest;
 import com.spring.be.blogReview.service.BlogReviewService;
 import com.spring.be.jwt.config.JwtUtils;
@@ -47,5 +48,11 @@ public class BlogReviewController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(401).body(e.getMessage());
         }
+    }
+
+    @PatchMapping("/like")
+    public ResponseEntity<String> likeReview(@RequestBody ReviewLikeRequest request) {
+        blogReviewService.incrementLikes(request.getReviewId());
+        return ResponseEntity.ok("좋아요 증가");
     }
 }

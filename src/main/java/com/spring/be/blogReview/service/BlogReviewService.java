@@ -99,4 +99,10 @@ public class BlogReviewService {
 
         blogReviewRepository.save(review);
     }
+
+    public void incrementLikes(Long reviewId) {
+        BlogReview review = blogReviewRepository.findByBlogReviewId(reviewId);
+        review.setLikesCnt(review.getLikesCnt() + 1);
+        blogReviewRepository.save(review);
+    }
 }

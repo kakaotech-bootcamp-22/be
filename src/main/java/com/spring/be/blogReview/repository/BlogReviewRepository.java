@@ -24,4 +24,6 @@ public interface BlogReviewRepository extends JpaRepository<BlogReview, Long> {
             "JOIN br.user u " +
             "WHERE br.blog.blogId = :blogId")
     List<ReviewDto> findReviewsByBlogId(@Param("blogId") Long blogId);
+
+    BlogReview findByBlogReviewId(Long blogReviewId);
 }
