@@ -1,14 +1,15 @@
 package com.spring.be.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Table(name = "blog_reviews")
 @Getter @Setter
 @ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class BlogReview extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
