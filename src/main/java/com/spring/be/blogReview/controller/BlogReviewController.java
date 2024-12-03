@@ -32,14 +32,10 @@ public class BlogReviewController {
     @PostMapping
     public ResponseEntity<ReviewResponseDto> createReview(
             @RequestBody ReviewRequest request,
-            @RequestHeader("Cookie") String cookieHeader
-    ) {
+            @CookieValue("jwtToken") String jwtToken) {
         try {
-            // 쿠키에서 JWT 추출
-            String token = CookieUtils.extractTokenFromCookie(cookieHeader, "jwtToken");
-
             // JWT 검증 및 사용자 정보 추출
-            String socialIdString = jwtUtils.getUsernameFromJwtToken(token);
+            String socialIdString = jwtUtils.getUsernameFromJwtToken(jwtToken);
             BigInteger socialId = new BigInteger(socialIdString);
 
             // 리뷰 등록
