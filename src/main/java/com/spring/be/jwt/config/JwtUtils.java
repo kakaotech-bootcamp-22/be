@@ -7,6 +7,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,9 @@ public class JwtUtils {
     @Autowired
     private JwtEncoder jwtEncoder;
 
+    @Autowired
+    private JwtDecoder jwtDecoder;
+
     // JWT 토큰 생성
     public String generateJwtToken(String username) {
         var claims = JwtClaimsSet.builder()
@@ -36,23 +40,30 @@ public class JwtUtils {
                 .getTokenValue();
     }
 
-    // JWT 토큰에서 사용자 이름 추출
+    // JWT 토큰에서 사용자 이름 추출 (NimbusJwtDecoder 사용)
     public String getUsernameFromJwtToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(JWT_SECRET)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+//        return Jwts.parser()
+//                .setSigningKey(JWT_SECRET)
+//                .parseClaimsJws(token)
+//                .getBody()
+//                .getSubject();
+        return jwtDecoder.decode(token).getSubject();
     }
 
-    // JWT 토큰 유효성 확인
+    // JWT 토큰 유효성 확인 (NimbusJwtDecoder 사용)
     public boolean validateJwtToken(String token) {
+//        try {
+//            Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token);
+//            return true;
+//        } catch (MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+//            // 예외 처리
+//            return false;
+//        }
         try {
-            Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token);
+            jwtDecoder.decode(token);  // JWT 디코딩 및 검증
             return true;
-        } catch (MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException e) {
-            // 예외 처리
-            return false;
+        } catch (Exception e) {
+            return false;  // 예외 처리 (잘못된 토큰인 경우)
         }
     }
 }

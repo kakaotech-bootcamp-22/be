@@ -3,10 +3,14 @@ package com.spring.be.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigInteger;
+
 @Entity
 @Table(name = "users")
 @Getter @Setter
-public class User {
+@NoArgsConstructor
+@AllArgsConstructor
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
@@ -14,8 +18,8 @@ public class User {
     @Column(nullable = false, length = 30)
     private String socialPlatform;
 
-    @Column(nullable = false, length = 50)
-    private String socialId;
+    @Column(nullable = false, unique = true)
+    private BigInteger socialId;
 
     @Column(nullable = false, length = 30)
     private String nickname;
@@ -25,6 +29,24 @@ public class User {
 
     @Column(nullable = false)
     private Boolean isDeleted;
+
+    @Column(nullable = true, length = 400)
+    private String userImage;
+
+    @Column(nullable = true, length = 500) // Access Token은 길이가 길 수 있으므로 넉넉하게 설정
+    private String accessToken;
+
+
+    public User(String socialPlatform, BigInteger socialId, String nickname, String profileImage, String accessToken, String email){
+        this.socialPlatform = socialPlatform;
+        this.socialId = socialId;
+        this.nickname = nickname;
+        this.userImage = profileImage;
+        this.isDeleted = false;
+        this.accessToken = accessToken;
+        this.email = email;
+
+    }
 
     // Getters and Setters
 }
