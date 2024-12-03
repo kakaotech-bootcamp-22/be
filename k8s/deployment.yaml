@@ -12,6 +12,7 @@ metadata:
   labels:
     app: backend-server
 spec:
+  progressDeadlineSeconds: 900 
   replicas: 2
   selector:
     matchLabels:
