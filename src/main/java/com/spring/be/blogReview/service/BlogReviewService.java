@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -76,6 +77,7 @@ public class BlogReviewService {
     }
 
     // 리뷰 등록 로직
+    @Transactional
     public Long saveReview(ReviewRequest request, BigInteger socialId) {
         Blog blog = blogRepository.findById(request.getBlogId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid blog ID"));
