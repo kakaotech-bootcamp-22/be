@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
@@ -67,7 +68,7 @@ public class BlogReviewService {
     public BlogReviewResponseDto getBlogReviewResponse(Long blogId) {
         RatingStatsDto stats = getRatingStats(blogId);
         int size = 5;
-        Page<ReviewDto> reviews = getReviewsByLikesCnt(blogId, 0, size);
+        Page<ReviewDto> reviews = getReviews(blogId, 0, size, "likes");
         int totalReviews = getBlogReviewCount(blogId);
         int totalPages = (int) Math.ceil((double) totalReviews / size);
 
@@ -103,23 +104,23 @@ public class BlogReviewService {
         blogReviewRepository.save(review);
     }
 
-    public Page<ReviewDto> getReviewsByLikesCnt(Long blogId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return blogReviewRepository.findByLikesCntDesc(blogId, pageable);
-    }
-
-    public Page<ReviewDto> getReviewsByCreatedAt(Long blogId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return blogReviewRepository.findByCreatedAtDesc(blogId, pageable);
-    }
-
-    public Page<ReviewDto> getReviewsByRatingDesc(Long blogId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return blogReviewRepository.findByRatingDesc(blogId, pageable);
-    }
-
-    public Page<ReviewDto> getReviewsByRatingAsc(Long blogId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return blogReviewRepository.findByRatingAsc(blogId, pageable);
+    public Page<ReviewDto> getReviews(Long blogId, int page, int size, String sortBy) {
+        Pageable pageable;
+        switch (sortBy) {
+            case "recent":
+                pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+                break;
+            case "rating-desc":
+                pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "rating"));
+                break;
+            case "rating-asc":
+                pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "rating"));
+                break;
+            case "likes":
+            default:
+                pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "likesCnt"));
+                break;
+        }
+        return blogReviewRepository.findByBlogId(blogId, pageable);
     }
 }

@@ -25,49 +25,6 @@ public interface BlogReviewRepository extends JpaRepository<BlogReview, Long> {
             "br.likesCnt) " +
             "FROM BlogReview br " +
             "JOIN br.user u " +
-            "WHERE br.blog.blogId = :blogId " +
-            "ORDER BY br.likesCnt DESC")
-    Page<ReviewDto> findByLikesCntDesc(@Param("blogId") Long blogId, Pageable pageable);
-
-    @Query("SELECT new com.spring.be.blogReview.dto.ReviewDto(" +
-            "br.blogReviewId, " +
-            "br.rating, " +
-            "br.createdAt, " +
-            "br.content, " +
-            "u.nickname, " +
-            "u.userImage, " +
-            "br.likesCnt) " +
-            "FROM BlogReview br " +
-            "JOIN br.user u " +
-            "WHERE br.blog.blogId = :blogId " +
-            "ORDER BY br.createdAt DESC")
-    Page<ReviewDto> findByCreatedAtDesc(@Param("blogId") Long blogId, Pageable pageable);
-
-    @Query("SELECT new com.spring.be.blogReview.dto.ReviewDto(" +
-            "br.blogReviewId, " +
-            "br.rating, " +
-            "br.createdAt, " +
-            "br.content, " +
-            "u.nickname, " +
-            "u.userImage, " +
-            "br.likesCnt) " +
-            "FROM BlogReview br " +
-            "JOIN br.user u " +
-            "WHERE br.blog.blogId = :blogId " +
-            "ORDER BY br.rating DESC")
-    Page<ReviewDto> findByRatingDesc(@Param("blogId") Long blogId, Pageable pageable);
-
-    @Query("SELECT new com.spring.be.blogReview.dto.ReviewDto(" +
-            "br.blogReviewId, " +
-            "br.rating, " +
-            "br.createdAt, " +
-            "br.content, " +
-            "u.nickname, " +
-            "u.userImage, " +
-            "br.likesCnt) " +
-            "FROM BlogReview br " +
-            "JOIN br.user u " +
-            "WHERE br.blog.blogId = :blogId " +
-            "ORDER BY br.rating ASC")
-    Page<ReviewDto> findByRatingAsc(@Param("blogId") Long blogId, Pageable pageable);
+            "WHERE br.blog.blogId = :blogId")
+    Page<ReviewDto> findByBlogId(@Param("blogId") Long blogId, Pageable pageable);
 }

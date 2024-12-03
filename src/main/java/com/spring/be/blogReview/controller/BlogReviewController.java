@@ -53,31 +53,14 @@ public class BlogReviewController {
         return ResponseEntity.noContent().build(); // 204 No Content 응답
     }
 
-    @GetMapping("/{blogId}/likes")
-    public Page<ReviewDto> getReviewsByLikesCnt(@PathVariable Long blogId,
-                                                @RequestParam(defaultValue = "0") int page,
-                                                @RequestParam(defaultValue = "5") int size) {
-        return blogReviewService.getReviewsByLikesCnt(blogId, page, size);
-    }
-
-    @GetMapping("/{blogId}/recent")
-    public Page<ReviewDto> getReviewsByCreatedAt(@PathVariable Long blogId,
-                                                  @RequestParam(defaultValue = "0") int page,
-                                                  @RequestParam(defaultValue = "5") int size) {
-        return blogReviewService.getReviewsByCreatedAt(blogId, page, size);
-    }
-
-    @GetMapping("/{blogId}/rating-desc")
-    public Page<ReviewDto> getReviewsByRatingDesc(@PathVariable Long blogId,
-                                                   @RequestParam(defaultValue = "0") int page,
-                                                   @RequestParam(defaultValue = "5") int size) {
-        return blogReviewService.getReviewsByRatingDesc(blogId, page, size);
-    }
-
-    @GetMapping("/{blogId}/rating-asc")
-    public Page<ReviewDto> getReviewsByRatingAsc(@PathVariable Long blogId,
-                                                  @RequestParam(defaultValue = "0") int page,
-                                                  @RequestParam(defaultValue = "5") int size) {
-        return blogReviewService.getReviewsByRatingAsc(blogId, page, size);
+    @GetMapping("/{blogId}/reviews")
+    public ResponseEntity<Page<ReviewDto>> getReviews(
+            @PathVariable Long blogId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "likes") String sortBy
+    ) {
+        Page<ReviewDto> reviews = blogReviewService.getReviews(blogId, page, size, sortBy);
+        return ResponseEntity.ok(reviews);
     }
 }
