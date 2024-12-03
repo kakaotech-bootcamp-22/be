@@ -23,9 +23,9 @@ public class BlogReviewController {
     @Autowired
     private JwtUtils jwtUtils;
 
-    @GetMapping("{blog_id}")
-    public ResponseEntity<BlogReviewResponseDto> getBlogReviews(@PathVariable Long blog_id) {
-        return ResponseEntity.ok(blogReviewService.getBlogReviewResponse(blog_id));
+    @GetMapping("{blogId}")
+    public ResponseEntity<BlogReviewResponseDto> getBlogReviews(@PathVariable Long blogId) {
+        return ResponseEntity.ok(blogReviewService.getBlogReviewResponse(blogId));
     }
 
     // 리뷰 등록
