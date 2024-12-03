@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/review")
@@ -43,7 +44,11 @@ public class BlogReviewController {
 
             return ResponseEntity.status(201).body(new ReviewResponseDto(blogReviewId));
         } catch (IllegalArgumentException e) {
+            // JWT 검증 실패
             return ResponseEntity.status(401).body(null);
+        } catch (NoSuchElementException e) {
+            // 해당 블로그 ID가 없을 경우
+            return ResponseEntity.status(404).body(null);
         }
     }
 
