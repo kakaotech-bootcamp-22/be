@@ -48,9 +48,9 @@ public class BlogReviewController {
     }
 
     @PatchMapping("/like")
-    public ResponseEntity<String> likeReview(@RequestBody ReviewLikeRequest request) {
+    public ResponseEntity<Void> likeReview(@RequestBody ReviewLikeRequest request) {
         blogReviewService.incrementLikes(request.getReviewId());
-        return ResponseEntity.ok("좋아요 증가");
+        return ResponseEntity.noContent().build(); // 204 No Content 응답
     }
 
     @GetMapping("/{blogId}/likes")
