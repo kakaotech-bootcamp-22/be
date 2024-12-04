@@ -54,6 +54,9 @@ public class BlogReviewController {
             Long blogReviewId = blogReviewService.saveReview(request, socialId);
 
             return ResponseEntity.status(201).body(new ReviewResponseDto(blogReviewId));
+        } catch (IllegalStateException e) {
+            // 이미 리뷰를 등록한 경우
+            return ResponseEntity.status(409).body(null);
         } catch (IllegalArgumentException e) {
             // JWT 검증 실패
             return ResponseEntity.status(401).body(null);

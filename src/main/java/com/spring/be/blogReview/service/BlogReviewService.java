@@ -84,6 +84,12 @@ public class BlogReviewService {
     // 리뷰 등록 로직
     @Transactional
     public Long saveReview(ReviewRequest request, BigInteger socialId) {
+
+        // 중복 리뷰 검증
+        if (blogReviewRepository.existsByBlogBlogIdAndUserSocialId(request.getBlogId(), socialId)) {
+            throw new IllegalStateException("이미 해당 블로그에 리뷰를 작성했습니다.");
+        }
+
         Blog blog = blogRepository.findById(request.getBlogId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid blog ID"));
 
