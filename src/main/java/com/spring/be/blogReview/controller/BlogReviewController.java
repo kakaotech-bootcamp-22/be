@@ -25,8 +25,18 @@ public class BlogReviewController {
     private JwtUtils jwtUtils;
 
     @GetMapping("{blogId}")
-    public ResponseEntity<BlogReviewResponseDto> getBlogReviews(@PathVariable Long blogId) {
-        return ResponseEntity.ok(blogReviewService.getBlogReviewResponse(blogId));
+    public ResponseEntity<BlogReviewResponseDto> getBlogReviews(@PathVariable Long blogId, @CookieValue("jwtToken") String jwtToken) {
+        // *********** JWT 필터 구현완료시 변경예정 ***********
+        try {
+            // JWT 검증 및 사용자 정보 추출
+            String socialIdString = jwtUtils.getUsernameFromJwtToken(jwtToken);
+            BigInteger socialId = new BigInteger(socialIdString);
+
+            return ResponseEntity.ok(blogReviewService.getBlogReviewResponse(blogId, socialId));
+        } catch (IllegalArgumentException e) {
+            // JWT 검증 실패
+            return ResponseEntity.status(401).body(null);
+        }
     }
 
     // 리뷰 등록
@@ -34,6 +44,7 @@ public class BlogReviewController {
     public ResponseEntity<ReviewResponseDto> createReview(
             @RequestBody ReviewRequest request,
             @CookieValue("jwtToken") String jwtToken) {
+        // *********** JWT 필터 구현완료시 변경예정 ***********
         try {
             // JWT 검증 및 사용자 정보 추출
             String socialIdString = jwtUtils.getUsernameFromJwtToken(jwtToken);
@@ -52,9 +63,20 @@ public class BlogReviewController {
         }
     }
 
+    // 좋아요 처리
     @PatchMapping("/like")
-    public ResponseEntity<Void> likeReview(@RequestBody ReviewLikeRequest request) {
-        blogReviewService.incrementLikes(request.getReviewId());
+    public ResponseEntity<Void> likeReview(@RequestBody ReviewLikeRequest request,@CookieValue("jwtToken") String jwtToken) {
+        // *********** JWT 필터 구현완료시 변경예정 ***********
+        try {
+            // JWT 검증 및 사용자 정보 추출
+            String socialIdString = jwtUtils.getUsernameFromJwtToken(jwtToken);
+            BigInteger socialId = new BigInteger(socialIdString);
+            blogReviewService.toggleLike(request.getReviewId(),socialId);
+        }
+        catch (IllegalArgumentException e) {
+            // JWT 검증 실패
+            return ResponseEntity.status(401).body(null);
+        }
         return ResponseEntity.noContent().build(); // 204 No Content 응답
     }
 
@@ -63,9 +85,19 @@ public class BlogReviewController {
             @PathVariable Long blogId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "likes") String sortBy
-    ) {
-        Page<ReviewDto> reviews = blogReviewService.getReviews(blogId, page, size, sortBy);
-        return ResponseEntity.ok(reviews);
+            @RequestParam(defaultValue = "likes") String sortBy,
+            @CookieValue("jwtToken") String jwtToken) {
+        // *********** JWT 필터 구현완료시 변경예정 ***********
+        try {
+            // JWT 검증 및 사용자 정보 추출
+            String socialIdString = jwtUtils.getUsernameFromJwtToken(jwtToken);
+            BigInteger socialId = new BigInteger(socialIdString);
+
+            Page<ReviewDto> reviews = blogReviewService.getReviews(blogId,socialId, page, size, sortBy);
+            return ResponseEntity.ok(reviews);
+        } catch (IllegalArgumentException e) {
+            // JWT 검증 실패
+            return ResponseEntity.status(401).body(null);
+        }
     }
 }

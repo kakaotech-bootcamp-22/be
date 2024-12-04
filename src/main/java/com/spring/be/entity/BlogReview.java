@@ -1,11 +1,17 @@
 package com.spring.be.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "blog_reviews")
-@Getter @Setter
+@Getter
+@Setter
 @ToString
 @Builder
 @NoArgsConstructor
