@@ -31,23 +31,23 @@ import java.util.UUID;
 public class JwtSecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
-            .csrf().disable() // CSRF 비활성화
-            .authorizeHttpRequests(authorize -> authorize
-//                    .requestMatchers("/api/test/**").permitAll() // /api/test 경로는 허용
-//                    .requestMatchers("/api/auth/**").permitAll() // /api/auth 경로는 허용
-//                    .requestMatchers("/h2-console/**").permitAll() // H2 콘솔 접근 허용
-                    .requestMatchers("/**").permitAll() // 모든 요청 허용
-                    .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
-            )
-            .oauth2ResourceServer(oauth2 ->
-                    oauth2.jwt()  // JWT 인증 방식 사용
-            )
-            .sessionManagement(sessionManagement ->
-                    sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // 세션을 사용하지 않고 JWT를 사용
-            )
-            .headers().frameOptions().disable(); // H2 콘솔을 위해 X-Frame-Options 비활성화
+                .csrf().disable() // CSRF 비활성화
+                .cors().configurationSource(corsConfigurationSource) // CORS 설정 적용
+                .and()
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 모든 OPTIONS 요청 허용
+                        .requestMatchers("/**").permitAll() // 모든 요청 허용
+                        .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
+                )
+                .oauth2ResourceServer(oauth2 ->
+                        oauth2.jwt()  // JWT 인증 방식 사용
+                )
+                .sessionManagement(sessionManagement ->
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // 세션을 사용하지 않고 JWT를 사용
+                )
+                .headers().frameOptions().disable(); // H2 콘솔을 위해 X-Frame-Options 비활성화
 
         return http.build();
     }

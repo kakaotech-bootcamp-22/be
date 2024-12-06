@@ -25,6 +25,4 @@ public class ResultFeedback extends BaseEntity {
 
     @Column(length = 200)
     private String reason;
-
-    // Getters and Setters
 }
