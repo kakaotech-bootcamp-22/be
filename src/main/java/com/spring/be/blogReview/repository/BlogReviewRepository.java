@@ -44,4 +44,9 @@ public interface BlogReviewRepository extends JpaRepository<BlogReview, Long> {
             "JOIN br.user u " +
             "WHERE br.blog.blogId = :blogId")
     Page<ReviewDto> findByBlogId(@Param("blogId") Long blogId, Pageable pageable);
+
+    int countByUser_UserId(Long userId);
+
+    @Query("SELECT COALESCE(SUM(br.likesCnt), 0) FROM BlogReview br WHERE br.user.userId = :userId")
+    int getTotalLikesReceivedByUser(@Param("userId") Long userId);
 }

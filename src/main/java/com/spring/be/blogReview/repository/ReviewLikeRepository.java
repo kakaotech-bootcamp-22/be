@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface ReviewLikeRepository extends JpaRepository<ReviewLike, Long> {
     Optional<ReviewLike> findByBlogReviewAndUser(BlogReview blogReview, User user);
     boolean existsByBlogReviewAndUser(BlogReview blogReview, User user);
-
+    int countByUser_UserId(Long userId);
 }
