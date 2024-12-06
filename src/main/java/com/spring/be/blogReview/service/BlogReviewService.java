@@ -165,4 +165,12 @@ public class BlogReviewService {
                     .build();
         });
     }
+
+    public int getReviewCountByUserId(Long userId) {
+        return blogReviewRepository.countByUser_UserId(userId);
+    }
+
+    public int getTotalLikesReceived(Long userId) {
+        return blogReviewRepository.getTotalLikesReceivedByUser(userId);
+    }
 }
