@@ -36,7 +36,7 @@ public class ReviewCheckController {
     @GetMapping("/status/{requestId}")
     public ResponseEntity<ReviewCheckResult> getReviewCheckResult(@PathVariable String requestId) {
         ReviewCheckResult result = reviewCheckService.getReviewCheckResult(requestId);
-        if (requestId != null) {
+        if (result != null) {
             return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
