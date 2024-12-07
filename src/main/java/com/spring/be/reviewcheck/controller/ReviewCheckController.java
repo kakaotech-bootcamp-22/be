@@ -33,7 +33,7 @@ public class ReviewCheckController {
         reviewCheckService.cachedReviewCheckResult(result.getRequestId(), result);
     }
 
-    @GetMapping("/{requestId}")
+    @GetMapping("/status/{requestId}")
     public ResponseEntity<ReviewCheckResult> getReviewCheckResult(@PathVariable String requestId) {
         ReviewCheckResult result = reviewCheckService.getReviewCheckResult(requestId);
         if (requestId != null) {
