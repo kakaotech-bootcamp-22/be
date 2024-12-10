@@ -22,6 +22,9 @@ public class ReviewCheckController {
     @PostMapping
     public ResponseEntity<ReviewCheckResult> createReviewCheck(@RequestBody ReviewCheckRequest request) {
         ReviewCheckResult reviewCheck = reviewCheckService.createReviewCheckResult(request);
+        if (reviewCheck == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(reviewCheck);
     }
 
