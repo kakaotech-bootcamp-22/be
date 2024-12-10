@@ -33,10 +33,13 @@ public class ReviewCheckService {
         String cachedJson = redisCacheUtil.getCachedResult(cacheKey);
         if (cachedJson != null) {
             try {
+                System.out.println("Cached data found: " + cachedJson);
                 return objectMapper.readValue(cachedJson, ReviewCheckResult.class);
             } catch (JsonProcessingException e) {
                 System.err.println("Error parsing cached json: " + e.getMessage());
             }
+        } else {
+            System.out.println("Cached data not found: " + cacheKey);
         }
 
         // 캐시된 데이터가 없으면 큐에 작업을 추가하고 기본 응답 반환
