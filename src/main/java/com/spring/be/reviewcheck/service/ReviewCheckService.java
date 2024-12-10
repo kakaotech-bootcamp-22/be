@@ -9,13 +9,24 @@ import com.spring.be.reviewcheck.utils.RedisCacheUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
 public class ReviewCheckService {
+
+    @Value("${ai.server.url}") // Parameter Store에서 가져오는 값
+    private String aiServerUrl;
 
    private final ReviewCheckResultRepository reviewCheckResultRepository;
    private final RedisCacheUtil redisCacheUtil;
@@ -54,13 +65,30 @@ public class ReviewCheckService {
         result.setScore(-1);
         result.setEvidence("Pending");
 
-        // Redis에 작업 상태 캐싱
+        // Redis에 초기 상태 (기본 응답) 캐싱
         try {
             String resultJson = objectMapper.writeValueAsString(result);
             redisCacheUtil.cacheResult(cacheKey, resultJson);
-            System.out.println("Cached new result: " + cacheKey);
+            System.out.println("Cached initial result for key: " + cacheKey);
         } catch (JsonProcessingException e) {
-            System.err.println("Error serializing result for caching: " + e.getMessage());
+            System.err.println("Error serializing initial result for caching: " + e.getMessage());
+        }
+
+        // AI 서버로 POST 검사 요청 전송
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            Map<String, String> aiRequest = new HashMap<>();
+            aiRequest.put("requestId", requestId);
+            aiRequest.put("blogUrl", blogId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, String>> entity = new HttpEntity<>(aiRequest, headers);
+
+            ResponseEntity<String> response = restTemplate.postForEntity(aiServerUrl + "/review-check", entity, String.class);
+            System.out.println("Sent AI review check request. Response: " + response.getBody());
+        } catch (Exception e) {
+            System.err.println("Error sending AI review check request: " + e.getMessage());
         }
 
         return result;
