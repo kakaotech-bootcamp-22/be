@@ -29,74 +29,49 @@ public class UserController {
 
     @PostMapping("/update-profile")
     public ResponseEntity<?> updateProfile(
-            @RequestHeader("Cookie") String cookieHeader,
+            @CookieValue("jwtToken") String jwtToken,
             @RequestParam("nickname") String nickname,
             @RequestParam(value = "profileImage", required = false) String profileImage) {
-        try {
-            BigInteger socialId = extractSocialIdFromCookie(cookieHeader);
-            User user = userService.findBySocialId(socialId); // socialId로 사용자 찾기
-            if (user == null) {
-                return ResponseEntity.ok().body(Map.of("isLoggedIn", false, "message", "User not found."));
-            }
 
-            user.setNickname(nickname);
-            // 프로필 이미지 처리 (파일 저장 또는 URL 저장)
-
-            if (profileImage != null && !profileImage.isEmpty()) {
-                user.setUserImage(profileImage);
-            }
-
-            userService.saveUserProfile(user, nickname, profileImage); // 사용자 정보 DB에 저장
-
-            return ResponseEntity.ok(Map.of(
-                    "updatedNickname", user.getNickname(),
-                    "updatedProfileImage", user.getUserImage()
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("프로필 업데이트 중 오류가 발생했습니다.");
+        BigInteger socialId = extractSocialIdFromCookie(jwtToken);
+        User user = userService.findBySocialId(socialId); // socialId로 사용자 찾기
+        if (user == null) {
+            return ResponseEntity.ok().body(Map.of("isLoggedIn", false, "message", "User not found."));
         }
+        user.setNickname(nickname);
+        // 프로필 이미지 처리 (파일 저장 또는 URL 저장)
+        if (profileImage != null && !profileImage.isEmpty()) {
+            user.setUserImage(profileImage);
+        }
+
+        userService.saveUserProfile(user, nickname, profileImage); // 사용자 정보 DB에 저장
+
+        return ResponseEntity.ok(Map.of(
+                "updatedNickname", user.getNickname(),
+                "updatedProfileImage", user.getUserImage()
+        ));
     }
 
     // 유저 활동 데이터 조회
     @GetMapping("/activity-counts")
-    public ResponseEntity<?> getUserActivityCounts(@RequestHeader("Cookie") String cookieHeader) {
-        try {
-            BigInteger socialId = extractSocialIdFromCookie(cookieHeader);
-            Long userId = userRepository.findUserIdBySocialId(socialId);
-            UserActivityCountsDto activityCounts = userService.getUserActivityCounts(userId);
-            return ResponseEntity.ok(activityCounts);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("message", "잘못된 요청: " + e.getMessage()));
-        } catch (Exception e) {
-            e.printStackTrace(); // 디버깅용 로그
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "서버 내부 오류가 발생했습니다."));
-        }
+    public ResponseEntity<?> getUserActivityCounts(@CookieValue("jwtToken") String jwtToken) {
+        BigInteger socialId = extractSocialIdFromCookie(jwtToken);
+        Long userId = userRepository.findUserIdBySocialId(socialId);
+        UserActivityCountsDto activityCounts = userService.getUserActivityCounts(userId);
+        return ResponseEntity.ok(activityCounts);
     }
 
-    private String extractTokenFromCookie(String cookieHeader, String cookieName) {
-        if (cookieHeader == null || cookieHeader.isEmpty()) {
+    private BigInteger extractTokenFromCookie(String jwtToken) {
+        if (jwtToken == null || jwtToken.isEmpty()) {
             return null;
         }
-
-        // "jwtToken=eyJhb...; Path=/" 형식의 문자열에서 토큰 값을 추출
-        String[] cookies = cookieHeader.split("; ");
-        for (String cookie : cookies) {
-            if (cookie.startsWith(cookieName + "=")) {
-                return cookie.substring((cookieName + "=").length());
-            }
-        }
-        return null;
+        return new BigInteger(jwtUtils.getUsernameFromJwtToken(jwtToken)); // socialId 반환
     }
 
-    private BigInteger extractSocialIdFromCookie(String cookieHeader) {
-        String token = extractTokenFromCookie(cookieHeader, "jwtToken");
-
-        if (token == null || !jwtUtils.validateJwtToken(token)) {
+    private BigInteger extractSocialIdFromCookie(String jwtToken) {
+        if (jwtToken == null || !jwtUtils.validateJwtToken(jwtToken)) {
             throw new IllegalArgumentException("유효하지 않은 JWT 토큰입니다.");
         }
-
-        return new BigInteger(jwtUtils.getUsernameFromJwtToken(token)); // socialId만 반환
+        return new BigInteger(jwtUtils.getUsernameFromJwtToken(jwtToken)); // socialId만 반환
     }
 }
