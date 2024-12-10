@@ -45,7 +45,7 @@ public class ReviewCheckService {
         // 캐시된 데이터가 없으면 큐에 작업을 추가하고 기본 응답 반환
         reviewQueueService.enqueueReviewCheckResult(requestId, blogId);
 
-        // 캐시된 데이터가 없으면 큐에 작업을 추가
+        // 기본 응답 생성
         ReviewCheckResult result = new ReviewCheckResult();
         result.setRequestId(requestId);
         result.setBlogUrl(blogId);
@@ -53,6 +53,15 @@ public class ReviewCheckService {
         result.setSummaryText("The Review Analysis is in progress.");
         result.setScore(-1);
         result.setEvidence("Pending");
+
+        // Redis에 작업 상태 캐싱
+        try {
+            String resultJson = objectMapper.writeValueAsString(result);
+            redisCacheUtil.cacheResult(cacheKey, resultJson);
+            System.out.println("Cached new result: " + cacheKey);
+        } catch (JsonProcessingException e) {
+            System.err.println("Error serializing result for caching: " + e.getMessage());
+        }
 
         return result;
     }
