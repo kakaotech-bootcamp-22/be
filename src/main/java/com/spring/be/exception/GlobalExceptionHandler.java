@@ -13,6 +13,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 
+import java.util.Map;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -52,5 +54,11 @@ public class GlobalExceptionHandler {
                 .body("파일 크기가 너무 큽니다. 제한 크기를 확인하세요." + ex.getMessage());
     }
 
+    // 유저 데이터 조회 중 오류 처리
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map> handleIllegalArgumentException(IllegalArgumentException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", "잘못된 요청: " + e.getMessage()));
+    }
 
 }
