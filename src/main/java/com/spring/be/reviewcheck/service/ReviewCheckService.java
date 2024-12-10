@@ -27,7 +27,7 @@ public class ReviewCheckService {
     public ReviewCheckResult createReviewCheckResult(ReviewCheckRequest request) {
         String blogId = request.getBlogUrl();
         String requestId = UUID.randomUUID().toString();
-        String cacheKey = "reviewResult:" + request.getBlogUrl();
+        String cacheKey = "reviewResult:" + requestId;
 
         // 먼저 Redis에서 캐시된 결과가 있는지 확인
         String cachedJson = redisCacheUtil.getCachedResult(cacheKey);
