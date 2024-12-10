@@ -104,30 +104,48 @@ public class ReviewCheckService {
     public void cachedReviewCheckResult(String requestId, ReviewCheckResult newResult) {
         String cacheKey = "reviewResult:" + requestId;
 
+        // Redis에 새로운 결과 캐싱
         try {
-            // Redis에 새로운 결과 캐싱
             String jsonResult = objectMapper.writeValueAsString(newResult);
             redisCacheUtil.cacheResult(cacheKey, jsonResult);
             System.out.println("Updated cached result for key: " + cacheKey);
-
-            // 기존 데이터베이스 기록이 있는지 확인 후 업데이트
-            ReviewCheckResult existingResult = reviewCheckResultRepository.findByRequestId(requestId);
-            if (existingResult != null) {
-                // 기존 데이터 업데이트
-                existingResult.setSummaryTitle(newResult.getSummaryTitle());
-                existingResult.setSummaryText(newResult.getSummaryText());
-                existingResult.setScore(newResult.getScore());
-                existingResult.setEvidence(newResult.getEvidence());
-                reviewCheckResultRepository.save(existingResult);
-                System.out.println("Updated existing database record for requestId: " + requestId);
-            } else {
-                // 새 데이터 저장
-                reviewCheckResultRepository.save(newResult);
-                System.out.println("Saved new result to database for requestId: " + requestId);
-            }
         } catch (JsonProcessingException e) {
             System.err.println("Error converting result to JSON: " + e.getMessage());
         }
+
+        // 비로그인 상태인 경우 DB 작업 생략
+        if (newResult.getUser() == null) {
+            System.out.println("No user associated with this result. Skipping database update.");
+            return;
+        }
+
+        // 기존 데이터베이스 기록이 있는지 확인 후 업데이트
+        try {
+            ReviewCheckResult existingResult = reviewCheckResultRepository.findByRequestId(requestId);
+            if (existingResult != null) {
+                // 기존 데이터 업데이트
+                updateExistingResult(existingResult, newResult);
+            } else {
+                // 새 데이터 저장
+                saveNewResult(newResult);
+            }
+        } catch (Exception e) {
+            System.err.println("Error processing database update: " + e.getMessage());
+        }
+    }
+
+    private void updateExistingResult(ReviewCheckResult existingResult, ReviewCheckResult newResult) {
+        existingResult.setSummaryTitle(newResult.getSummaryTitle());
+        existingResult.setSummaryText(newResult.getSummaryText());
+        existingResult.setScore(newResult.getScore());
+        existingResult.setEvidence(newResult.getEvidence());
+        reviewCheckResultRepository.save(existingResult);
+        System.out.println("Updated existing database record for requestId: " + existingResult.getRequestId());
+    }
+
+    private void saveNewResult(ReviewCheckResult newResult) {
+        reviewCheckResultRepository.save(newResult);
+        System.out.println("Saved new result to database for requestId: " + newResult.getRequestId());
     }
 
 
