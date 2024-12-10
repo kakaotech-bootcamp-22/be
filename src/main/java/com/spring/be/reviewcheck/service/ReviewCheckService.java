@@ -6,6 +6,7 @@ import com.spring.be.entity.ReviewCheckResult;
 import com.spring.be.reviewcheck.dto.ReviewCheckRequest;
 import com.spring.be.reviewcheck.repository.ReviewCheckResultRepository;
 import com.spring.be.reviewcheck.utils.RedisCacheUtil;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,6 +28,11 @@ public class ReviewCheckService {
 
     @Value("${ai.server.url}") // Parameter Store에서 가져오는 값
     private String aiServerUrl;
+
+    @PostConstruct
+    public void logAIServerUrl() {
+        System.out.println("AI Server Url: " + aiServerUrl);
+    }
 
    private final ReviewCheckResultRepository reviewCheckResultRepository;
    private final RedisCacheUtil redisCacheUtil;
@@ -94,12 +100,31 @@ public class ReviewCheckService {
         return result;
     }
 
-    // 결과 저장
-    public void cachedReviewCheckResult(String requestId, ReviewCheckResult result) {
+    // 결과 저장 및 업데이트
+    public void cachedReviewCheckResult(String requestId, ReviewCheckResult newResult) {
+        String cacheKey = "reviewResult:" + requestId;
+
         try {
-            String jsonResult = objectMapper.writeValueAsString(result);
-            String cacheKey = "reviewResult:" + requestId;
+            // Redis에 새로운 결과 캐싱
+            String jsonResult = objectMapper.writeValueAsString(newResult);
             redisCacheUtil.cacheResult(cacheKey, jsonResult);
+            System.out.println("Updated cached result for key: " + cacheKey);
+
+            // 기존 데이터베이스 기록이 있는지 확인 후 업데이트
+            ReviewCheckResult existingResult = reviewCheckResultRepository.findByRequestId(requestId);
+            if (existingResult != null) {
+                // 기존 데이터 업데이트
+                existingResult.setSummaryTitle(newResult.getSummaryTitle());
+                existingResult.setSummaryText(newResult.getSummaryText());
+                existingResult.setScore(newResult.getScore());
+                existingResult.setEvidence(newResult.getEvidence());
+                reviewCheckResultRepository.save(existingResult);
+                System.out.println("Updated existing database record for requestId: " + requestId);
+            } else {
+                // 새 데이터 저장
+                reviewCheckResultRepository.save(newResult);
+                System.out.println("Saved new result to database for requestId: " + requestId);
+            }
         } catch (JsonProcessingException e) {
             System.err.println("Error converting result to JSON: " + e.getMessage());
         }

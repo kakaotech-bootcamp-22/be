@@ -32,8 +32,13 @@ public class ReviewCheckController {
     @PostMapping("/response")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void receiveAIResponse(@RequestBody ReviewCheckResult result) {
-        // AI 서버의 응답을 캐시 및 데이터베이스에 저장
-        reviewCheckService.cachedReviewCheckResult(result.getRequestId(), result);
+        try {
+            // AI 서버의 응답을 캐시 및 데이터베이스에 저장
+            reviewCheckService.cachedReviewCheckResult(result.getRequestId(), result);
+            System.out.println("Received and processed AI response for requestId: " + result.getRequestId());
+        } catch (Exception e) {
+            System.err.println("Error processing AI response: " + e.getMessage());
+        }
     }
 
     @GetMapping("/status/{requestId}")
