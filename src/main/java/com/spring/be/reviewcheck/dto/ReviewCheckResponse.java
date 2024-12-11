@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter @Setter
 public class ReviewCheckResponse {
     private String requestId;
-    private String blogId;
+    private String blogUrl;
     private String summaryTitle;
     private String summaryText;
     private Integer score;
