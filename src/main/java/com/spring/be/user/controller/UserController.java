@@ -61,6 +61,22 @@ public class UserController {
         return ResponseEntity.ok(activityCounts);
     }
 
+    @GetMapping("/delete")
+    public ResponseEntity<?> deleteUser(@CookieValue("jwtToken") String jwtToken) {
+        BigInteger socialId = extractSocialIdFromCookie(jwtToken);
+
+        boolean isDeleted = userService.deleteUserBySocialId(socialId);
+
+        if (!isDeleted) {
+            return ResponseEntity.ok().body(Map.of(
+                    "isLoggedIn", false,
+                    "message", "User not found."
+            ));
+        }
+        return ResponseEntity.ok(Map.of("message", "User deleted successfully."));
+    }
+
+
     private BigInteger extractTokenFromCookie(String jwtToken) {
         if (jwtToken == null || jwtToken.isEmpty()) {
             return null;
