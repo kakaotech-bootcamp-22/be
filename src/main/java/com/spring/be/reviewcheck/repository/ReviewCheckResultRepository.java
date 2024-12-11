@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReviewCheckResultRepository extends JpaRepository<ReviewCheckResult, Long> {
+    // requestId로 ReviewCheckResult 검색
+    ReviewCheckResult findByRequestId(String requestId);
 }

@@ -18,11 +18,27 @@ public class RedisCacheUtil {
     }
 
     public void cacheResult(String key, String jsonValue) {
-        // 2시간 동안 캐싱
-        redisTemplate.opsForValue().set(key, jsonValue, 2, TimeUnit.HOURS);
+        try {
+            // 2시간 동안 캐싱
+            redisTemplate.opsForValue().set(key, jsonValue, 2, TimeUnit.HOURS);
+            System.out.println("[Redis] Cached result - Key: " + key + ", Value: " + jsonValue);
+        } catch (Exception e) {
+            System.err.println("[Redis] Error caching result - Key: " + key + ", Error: " + e.getMessage());
+        }
     }
 
     public String getCachedResult(String key) {
-        return redisTemplate.opsForValue().get(key);
+        try {
+            String value = redisTemplate.opsForValue().get(key);
+            if (value != null) {
+                System.out.println("[Redis] Cache hit - Key: " + key + ", Value: " + value);
+            } else {
+                System.out.println("[Redis] Cache miss - Key: " + key);
+            }
+            return value;
+        } catch (Exception e) {
+            System.err.println("[Redis] Error retrieving cache - Key: " + key + ", Error: " + e.getMessage());
+            return null;
+        }
     }
 }
