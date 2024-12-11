@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.be.entity.ReviewCheckResult;
 import com.spring.be.reviewcheck.dto.ReviewCheckRequest;
+import com.spring.be.reviewcheck.dto.ReviewCheckResponse;
 import com.spring.be.reviewcheck.repository.ReviewCheckResultRepository;
 import com.spring.be.reviewcheck.utils.RedisCacheUtil;
 import jakarta.annotation.PostConstruct;
@@ -101,36 +102,41 @@ public class ReviewCheckService {
     }
 
     // 결과 저장 및 업데이트
-    public void cachedReviewCheckResult(String requestId, ReviewCheckResult newResult) {
+    public void cachedReviewCheckResult(String requestId, ReviewCheckResponse responseDto) {
         String cacheKey = "reviewResult:" + requestId;
 
-        // Redis에 새로운 결과 캐싱
         try {
-            String jsonResult = objectMapper.writeValueAsString(newResult);
+            // Redis에 AI 응답 데이터 저장
+            String jsonResult = objectMapper.writeValueAsString(responseDto);
             redisCacheUtil.cacheResult(cacheKey, jsonResult);
             System.out.println("Updated cached result for key: " + cacheKey);
-        } catch (JsonProcessingException e) {
-            System.err.println("Error converting result to JSON: " + e.getMessage());
-        }
 
-        // 비로그인 상태인 경우 DB 작업 생략
-        if (newResult.getUser() == null) {
-            System.out.println("No user associated with this result. Skipping database update.");
-            return;
-        }
+            // DB 저장을 위한 엔티티 생성 및 저장
+            ReviewCheckResult newResult = new ReviewCheckResult();
+            newResult.setRequestId(responseDto.getRequestId());
+            newResult.setBlogUrl(responseDto.getBlogUrl());
+            newResult.setSummaryTitle(responseDto.getSummaryTitle());
+            newResult.setSummaryText(responseDto.getSummaryText());
+            newResult.setScore(responseDto.getScore());
+            newResult.setEvidence(responseDto.getEvidence());
 
-        // 기존 데이터베이스 기록이 있는지 확인 후 업데이트
-        try {
+            // 기존 데이터 업데이트 또는 새 데이터 저장
             ReviewCheckResult existingResult = reviewCheckResultRepository.findByRequestId(requestId);
             if (existingResult != null) {
                 // 기존 데이터 업데이트
-                updateExistingResult(existingResult, newResult);
+                existingResult.setSummaryTitle(newResult.getSummaryTitle());
+                existingResult.setSummaryText(newResult.getSummaryText());
+                existingResult.setScore(newResult.getScore());
+                existingResult.setEvidence(newResult.getEvidence());
+                reviewCheckResultRepository.save(existingResult);
+                System.out.println("Updated existing database record for requestId: " + requestId);
             } else {
                 // 새 데이터 저장
-                saveNewResult(newResult);
+                reviewCheckResultRepository.save(newResult);
+                System.out.println("Saved new result to database for requestId: " + requestId);
             }
-        } catch (Exception e) {
-            System.err.println("Error processing database update: " + e.getMessage());
+        } catch (JsonProcessingException e) {
+            System.err.println("Error converting result to JSON: " + e.getMessage());
         }
     }
 
