@@ -69,6 +69,7 @@ public class ReviewCheckService {
         String cacheKey = "reviewResult:" + requestId;
 
         try {
+            // Redis에 AI 응답 데이터 저장
             String jsonResult = objectMapper.writeValueAsString(responseDto);
             redisCacheUtil.cacheResult(cacheKey, jsonResult);
 
@@ -79,6 +80,12 @@ public class ReviewCheckService {
             result.setSummaryText(responseDto.getSummaryText());
             result.setScore(responseDto.getScore());
             result.setEvidence(responseDto.getEvidence());
+
+            // user 필드 확인
+            if (result.getUser() == null) {
+                System.out.println("No user associated with this result. Skipping database update.");
+                return; // 데이터베이스 저장 생략
+            }
 
             // DB 저장
             ReviewCheckResult existingResult = reviewCheckResultRepository.findByRequestId(requestId);
