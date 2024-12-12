@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.be.reviewcheck.utils.RedisCacheUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -11,17 +12,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class ReviewQueueService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisCacheUtil redisCacheUtil;
     private final ObjectMapper objectMapper;
 
-    public ReviewQueueService(RedisTemplate<String, String> redisTemplate, RedisCacheUtil redisCacheUtil, ObjectMapper objectMapper) {
-        this.redisTemplate = redisTemplate;
-        this.redisCacheUtil = redisCacheUtil;
-        this.objectMapper = objectMapper;
-    }
 
     // 큐에 작업 추가
     public void enqueueReviewCheckResult(String requestId, String blogUrl) {
