@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 public class ReviewCheckController {
 
     private final ReviewCheckService reviewCheckService;
-    private final ReviewQueueService reviewQueueService;
-
 
     // 사용자 요청 처리: 리뷰 검사 요청을 큐에 추가하고 기본 응답 반환
     @PostMapping
