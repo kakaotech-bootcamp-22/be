@@ -3,6 +3,7 @@ package com.spring.be.reviewcheck.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spring.be.reviewcheck.dto.ReviewQueuePayload;
 import com.spring.be.reviewcheck.utils.RedisCacheUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,12 +23,10 @@ public class ReviewQueueService {
 
     // 큐에 작업 추가
     public void enqueueReviewCheckResult(String requestId, String blogUrl) {
-        Map<String, String> requestPayload = new HashMap<>();
-        requestPayload.put("requestId", requestId);
-        requestPayload.put("blogUrl", blogUrl);
+        ReviewQueuePayload payload = new ReviewQueuePayload(requestId, blogUrl);
 
         try {
-            String payloadJson = objectMapper.writeValueAsString(requestPayload);
+            String payloadJson = objectMapper.writeValueAsString(payload);
             redisTemplate.opsForList().leftPush("reviewQueue", payloadJson);
             System.out.println("Enqueued review check request: " + payloadJson);
         } catch (JsonProcessingException e) {
@@ -36,11 +35,11 @@ public class ReviewQueueService {
     }
 
     // 큐에서 작업 처리
-    public Map<String, String> processReviewQueue() {
+    public ReviewQueuePayload processReviewQueue() {
         String payloadJson = redisTemplate.opsForList().rightPop("reviewQueue");
         if (payloadJson != null) {
             try {
-                return objectMapper.readValue(payloadJson, new TypeReference<Map<String, String>>() {});
+                return objectMapper.readValue(payloadJson, ReviewQueuePayload.class);
             } catch (JsonProcessingException e) {
                 System.err.println("Error parsing request payload JSON: " + e.getMessage());
             }
