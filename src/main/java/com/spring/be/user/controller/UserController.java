@@ -2,7 +2,9 @@ package com.spring.be.user.controller;
 
 import com.spring.be.entity.User;
 import com.spring.be.jwt.config.JwtUtils;
+import com.spring.be.user.dto.UpdateProfileResponseDto;
 import com.spring.be.user.dto.UserActivityCountsDto;
+import com.spring.be.user.dto.UserResponseDto;
 import com.spring.be.user.repository.UserRepository;
 import com.spring.be.user.service.S3Service;
 import com.spring.be.user.service.UserService;
@@ -36,7 +38,7 @@ public class UserController {
         BigInteger socialId = extractSocialIdFromCookie(jwtToken);
         User user = userService.findBySocialId(socialId); // socialId로 사용자 찾기
         if (user == null) {
-            return ResponseEntity.ok().body(Map.of("isLoggedIn", false, "message", "User not found."));
+            return ResponseEntity.ok(new UpdateProfileResponseDto(false, null, null, "User not found."));
         }
         user.setNickname(nickname);
         // 프로필 이미지 처리 (파일 저장 또는 URL 저장)
@@ -46,9 +48,11 @@ public class UserController {
 
         userService.saveUserProfile(user, nickname, profileImage); // 사용자 정보 DB에 저장
 
-        return ResponseEntity.ok(Map.of(
-                "updatedNickname", user.getNickname(),
-                "updatedProfileImage", user.getUserImage()
+        return ResponseEntity.ok(new UpdateProfileResponseDto(
+                true,
+                user.getNickname(),
+                user.getUserImage(),
+                "Profile updated successfully."
         ));
     }
 
@@ -62,18 +66,15 @@ public class UserController {
     }
 
     @GetMapping("/delete")
-    public ResponseEntity<?> deleteUser(@CookieValue("jwtToken") String jwtToken) {
+    public ResponseEntity<UserResponseDto> deleteUser(@CookieValue("jwtToken") String jwtToken) {
         BigInteger socialId = extractSocialIdFromCookie(jwtToken);
 
         boolean isDeleted = userService.deleteUserBySocialId(socialId);
 
         if (!isDeleted) {
-            return ResponseEntity.ok().body(Map.of(
-                    "isLoggedIn", false,
-                    "message", "User not found."
-            ));
+            return ResponseEntity.ok(new UserResponseDto(false, "User not found."));
         }
-        return ResponseEntity.ok(Map.of("message", "User deleted successfully."));
+        return ResponseEntity.ok(new UserResponseDto(true, "User deleted successfully."));
     }
 
 
