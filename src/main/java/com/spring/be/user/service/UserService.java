@@ -25,7 +25,6 @@ public class UserService {
         if (existingUser != null) {
             // 기존 사용자 정보 업데이트
             existingUser.setAccessToken(AccessToken);
-            existingUser.setIsDeleted(false);
             existingUser.setDeletedAt(null);
             return userRepository.save(existingUser);
         }
@@ -66,7 +65,6 @@ public class UserService {
             return false;
         }
 
-        user.setIsDeleted(true);
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
         return true;
