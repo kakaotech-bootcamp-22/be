@@ -9,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class UserService {
         if (existingUser != null) {
             // 기존 사용자 정보 업데이트
             existingUser.setAccessToken(AccessToken);
+            existingUser.setDeletedAt(null);
             return userRepository.save(existingUser);
         }
         try {
@@ -54,5 +56,17 @@ public class UserService {
         int likeCount = blogReviewService.getTotalLikesReceived(userId);
 
         return new UserActivityCountsDto(reviewCount, likeCount);
+    }
+
+    public boolean deleteUserBySocialId(BigInteger socialId) {
+        User user = userRepository.findBySocialId(socialId);
+
+        if (user == null) {
+            return false;
+        }
+
+        user.setDeletedAt(LocalDateTime.now());
+        userRepository.save(user);
+        return true;
     }
 }
