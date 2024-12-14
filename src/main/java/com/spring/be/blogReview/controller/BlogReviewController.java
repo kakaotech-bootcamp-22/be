@@ -5,6 +5,7 @@ import com.spring.be.blogReview.service.BlogReviewService;
 import com.spring.be.entity.BlogReview;
 import com.spring.be.jwt.config.JwtUtils;
 import com.spring.be.util.CookieUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -14,15 +15,14 @@ import java.math.BigInteger;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+
 @RestController
 @RequestMapping("/review")
+@RequiredArgsConstructor
 public class BlogReviewController {
 
-    @Autowired
-    private BlogReviewService blogReviewService;
-
-    @Autowired
-    private JwtUtils jwtUtils;
+    private final BlogReviewService blogReviewService;
+    private final JwtUtils jwtUtils;
 
     @GetMapping("{blogId}")
     public ResponseEntity<BlogReviewResponseDto> getBlogReviews(@PathVariable Long blogId, @CookieValue("jwtToken") String jwtToken) {

@@ -13,6 +13,7 @@ import com.spring.be.entity.ReviewLike;
 import com.spring.be.entity.User;
 import com.spring.be.jwt.config.JwtUtils;
 import com.spring.be.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,18 +27,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class BlogReviewService {
 
-    @Autowired
-    private BlogReviewRepository blogReviewRepository;
-    @Autowired
-    private BlogRepository blogRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ReviewLikeRepository reviewLikeRepository;
-    @Autowired
-    private JwtUtils jwtUtils;
+    private final BlogReviewRepository blogReviewRepository;
+    private final BlogRepository blogRepository;
+    private final UserRepository userRepository;
+    private final ReviewLikeRepository reviewLikeRepository;
 
     //ratingStats 계산
     public RatingStatsDto getRatingStats(Long blogId) {
