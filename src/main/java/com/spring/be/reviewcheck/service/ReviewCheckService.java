@@ -3,8 +3,8 @@ package com.spring.be.reviewcheck.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.be.entity.ReviewCheckResult;
-import com.spring.be.reviewcheck.dto.ReviewCheckRequest;
-import com.spring.be.reviewcheck.dto.ReviewCheckResponse;
+import com.spring.be.reviewcheck.dto.ReviewCheckRequestDto;
+import com.spring.be.reviewcheck.dto.ReviewCheckResponseDto;
 import com.spring.be.reviewcheck.repository.ReviewCheckResultRepository;
 import com.spring.be.reviewcheck.utils.RedisCacheUtil;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class ReviewCheckService {
     private String aiServerUrl;
 
     // 검사 요청 생성
-    public ReviewCheckResult createReviewCheckResult(ReviewCheckRequest request) {
+    public ReviewCheckResult createReviewCheckResult(ReviewCheckRequestDto request) {
         String blogId = request.getBlogUrl();
         String requestId = UUID.randomUUID().toString();
         String cacheKey = "reviewResult:" + requestId;
@@ -65,7 +65,7 @@ public class ReviewCheckService {
     }
 
     // 결과 저장 및 업데이트
-    public void cachedReviewCheckResult(String requestId, ReviewCheckResponse responseDto) {
+    public void cachedReviewCheckResult(String requestId, ReviewCheckResponseDto responseDto) {
         String cacheKey = "reviewResult:" + requestId;
 
         try {

@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class ReviewCheckRequest {
+public class ReviewCheckRequestDto {
     @NotBlank
     private String blogUrl;
 }

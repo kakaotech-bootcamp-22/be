@@ -1,10 +1,9 @@
 package com.spring.be.reviewcheck.controller;
 
 import com.spring.be.entity.ReviewCheckResult;
-import com.spring.be.reviewcheck.dto.ReviewCheckRequest;
-import com.spring.be.reviewcheck.dto.ReviewCheckResponse;
+import com.spring.be.reviewcheck.dto.ReviewCheckRequestDto;
+import com.spring.be.reviewcheck.dto.ReviewCheckResponseDto;
 import com.spring.be.reviewcheck.service.ReviewCheckService;
-import com.spring.be.reviewcheck.service.ReviewQueueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,7 @@ public class ReviewCheckController {
 
     // 사용자 요청 처리: 리뷰 검사 요청을 큐에 추가하고 기본 응답 반환
     @PostMapping
-    public ResponseEntity<ReviewCheckResult> createReviewCheck(@RequestBody ReviewCheckRequest request) {
+    public ResponseEntity<ReviewCheckResult> createReviewCheck(@RequestBody ReviewCheckRequestDto request) {
         // ReviewCheckService에서 검사 요청 처리 및 기본 응답 생성
         ReviewCheckResult reviewCheck = reviewCheckService.createReviewCheckResult(request);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(reviewCheck);
@@ -34,7 +33,7 @@ public class ReviewCheckController {
     // AI 서버 응답 처리: 분석 결과를 캐싱하고 데이터베이스에 저장
     @PostMapping("/response")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void receiveAIResponse(@RequestBody ReviewCheckResponse response) {
+    public void receiveAIResponse(@RequestBody ReviewCheckResponseDto response) {
         reviewCheckService.cachedReviewCheckResult(response.getRequestId(), response);
     }
 

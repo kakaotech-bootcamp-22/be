@@ -1,16 +1,12 @@
 package com.spring.be.reviewcheck.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring.be.reviewcheck.dto.ReviewQueuePayload;
+import com.spring.be.reviewcheck.dto.ReviewQueuePayloadDto;
 import com.spring.be.reviewcheck.utils.RedisCacheUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +19,7 @@ public class ReviewQueueService {
 
     // 큐에 작업 추가
     public void enqueueReviewCheckResult(String requestId, String blogUrl) {
-        ReviewQueuePayload payload = new ReviewQueuePayload(requestId, blogUrl);
+        ReviewQueuePayloadDto payload = new ReviewQueuePayloadDto(requestId, blogUrl);
 
         try {
             String payloadJson = objectMapper.writeValueAsString(payload);
@@ -35,11 +31,11 @@ public class ReviewQueueService {
     }
 
     // 큐에서 작업 처리
-    public ReviewQueuePayload processReviewQueue() {
+    public ReviewQueuePayloadDto processReviewQueue() {
         String payloadJson = redisTemplate.opsForList().rightPop("reviewQueue");
         if (payloadJson != null) {
             try {
-                return objectMapper.readValue(payloadJson, ReviewQueuePayload.class);
+                return objectMapper.readValue(payloadJson, ReviewQueuePayloadDto.class);
             } catch (JsonProcessingException e) {
                 System.err.println("Error parsing request payload JSON: " + e.getMessage());
             }

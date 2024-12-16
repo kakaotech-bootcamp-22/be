@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class ReviewCheckResponse {
+public class ReviewCheckResponseDto {
     private String requestId;
     private String blogUrl;
     private String summaryTitle;
