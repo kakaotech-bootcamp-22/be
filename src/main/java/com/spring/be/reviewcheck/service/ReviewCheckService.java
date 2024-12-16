@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.be.entity.ReviewCheckResult;
 import com.spring.be.reviewcheck.dto.ReviewCheckRequestDto;
 import com.spring.be.reviewcheck.dto.ReviewCheckResponseDto;
+import com.spring.be.reviewcheck.dto.ReviewCheckResultDto;
 import com.spring.be.reviewcheck.repository.ReviewCheckResultRepository;
 import com.spring.be.reviewcheck.utils.RedisCacheUtil;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class ReviewCheckService {
     private String aiServerUrl;
 
     // 검사 요청 생성
-    public ReviewCheckResult createReviewCheckResult(ReviewCheckRequestDto request) {
+    public ReviewCheckResultDto createReviewCheckResult(ReviewCheckRequestDto request) {
         String blogId = request.getBlogUrl();
         String requestId = UUID.randomUUID().toString();
         String cacheKey = "reviewResult:" + requestId;
@@ -35,7 +36,8 @@ public class ReviewCheckService {
         String cachedJson = redisCacheUtil.getCachedResult(cacheKey);
         if (cachedJson != null) {
             try {
-                return objectMapper.readValue(cachedJson, ReviewCheckResult.class);
+                ReviewCheckResult cachedResult = objectMapper.readValue(cachedJson, ReviewCheckResult.class);
+                return toResultDto(cachedResult, "Completed");
             } catch (JsonProcessingException e) {
                 System.err.println("Error parsing cached json: " + e.getMessage());
             }
@@ -54,14 +56,9 @@ public class ReviewCheckService {
         result.setEvidence("Pending");
 
         // Redis에 기본 응답 캐싱
-        try {
-            String resultJson = objectMapper.writeValueAsString(result);
-            redisCacheUtil.cacheResult(cacheKey, resultJson);
-        } catch (JsonProcessingException e) {
-            System.err.println("Error serializing initial result for caching: " + e.getMessage());
-        }
+        cacheResultToRedis(result);
 
-        return result;
+        return toResultDto(result, "Processing");
     }
 
     // 결과 저장 및 업데이트
@@ -70,8 +67,7 @@ public class ReviewCheckService {
 
         try {
             // Redis에 AI 응답 데이터 저장
-            String jsonResult = objectMapper.writeValueAsString(responseDto);
-            redisCacheUtil.cacheResult(cacheKey, jsonResult);
+            redisCacheUtil.cacheResult(cacheKey, objectMapper.writeValueAsString(responseDto));
 
             ReviewCheckResult result = new ReviewCheckResult();
             result.setRequestId(responseDto.getRequestId());
@@ -99,6 +95,14 @@ public class ReviewCheckService {
         }
     }
 
+    private void cacheResultToRedis(ReviewCheckResult result) {
+        try {
+            redisCacheUtil.cacheResult("reviewResult:" + result.getRequestId(), objectMapper.writeValueAsString(result));
+        } catch (JsonProcessingException e) {
+            System.err.println("Error serializing result for caching: " + e.getMessage());
+        }
+    }
+
     private void updateExistingResult(ReviewCheckResult existingResult, ReviewCheckResult newResult) {
         existingResult.setSummaryTitle(newResult.getSummaryTitle());
         existingResult.setSummaryText(newResult.getSummaryText());
@@ -111,14 +115,16 @@ public class ReviewCheckService {
         reviewCheckResultRepository.save(newResult);
     }
 
-    public ReviewCheckResult getReviewCheckResult(String requestId) {
+    // 결과 조회
+    public ReviewCheckResultDto getReviewCheckResult(String requestId) {
         String cacheKey = "reviewResult:" + requestId;
 
         // Redis에서 결과 조회
         String cachedJson = redisCacheUtil.getCachedResult(cacheKey);
         if (cachedJson != null) {
             try {
-                return objectMapper.readValue(cachedJson, ReviewCheckResult.class);
+                ReviewCheckResult cachedResult = objectMapper.readValue(cachedJson, ReviewCheckResult.class);
+                return toResultDto(cachedResult, "Completed");
             } catch (JsonProcessingException e) {
                 System.err.println("Error parsing cached JSON for requestId " + requestId + ": " + e.getMessage());
             }
@@ -127,5 +133,17 @@ public class ReviewCheckService {
         // 결과가 없는 경우 null 반환
         System.out.println("No cached result found for requestId: " + requestId);
         return null;
+    }
+
+    private ReviewCheckResultDto toResultDto(ReviewCheckResult entity, String status) {
+        return new ReviewCheckResultDto(
+                entity.getRequestId(),
+                entity.getBlogUrl(),
+                entity.getSummaryTitle(),
+                entity.getSummaryText(),
+                entity.getScore(),
+                entity.getEvidence(),
+                status
+        );
     }
 }
