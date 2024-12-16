@@ -3,7 +3,6 @@ package com.spring.be.reviewcheck.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.be.reviewcheck.dto.ReviewQueuePayloadDto;
-import com.spring.be.reviewcheck.utils.RedisCacheUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 public class ReviewQueueService {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final RedisCacheUtil redisCacheUtil;
     private final ObjectMapper objectMapper;
 
 
