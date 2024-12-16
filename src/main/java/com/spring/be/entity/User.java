@@ -27,9 +27,6 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String email;
 
-    @Column(nullable = false)
-    private Boolean isDeleted;
-
     @Column(nullable = true, length = 400)
     private String userImage;
 
@@ -42,11 +39,7 @@ public class User extends BaseEntity {
         this.socialId = socialId;
         this.nickname = nickname;
         this.userImage = profileImage;
-        this.isDeleted = false;
         this.accessToken = accessToken;
         this.email = email;
-
     }
-
-    // Getters and Setters
 }

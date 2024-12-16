@@ -1,36 +1,24 @@
 package com.spring.be.reviewcheck.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.spring.be.entity.ReviewCheckResult;
-import com.spring.be.reviewcheck.dto.ReviewCheckRequest;
-import com.spring.be.reviewcheck.repository.ReviewCheckResultRepository;
-import com.spring.be.reviewcheck.utils.RedisCacheUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spring.be.entity.ReviewCheckResult;
+import com.spring.be.reviewcheck.utils.RedisCacheUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-//import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.times;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
 
 class ReviewCheckServiceTest {
 
     @Mock
-    private ReviewCheckResultRepository reviewCheckResultRepository;
-
-    @Mock
     private RedisCacheUtil redisCacheUtil;
-
-    @Mock
-    private ReviewQueueService reviewQueueService;
 
     @Mock
     private ObjectMapper objectMapper;
@@ -39,91 +27,71 @@ class ReviewCheckServiceTest {
     private ReviewCheckService reviewCheckService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
-
     @Test
-    void createReviewCheckResult_whenCacheExits() throws JsonProcessingException {
+    void getReviewCheckResult_WhenCacheExists_ShouldReturnResult() throws JsonProcessingException {
         // Given
-        String blogUrl = "https://blog.naver.com/example/123456789";
-        String requestId = UUID.randomUUID().toString();
-        String cacheKey = "reviewResult:" + blogUrl;
-        ReviewCheckRequest request = new ReviewCheckRequest();
-        request.setBlogUrl(blogUrl);
+        String requestId = "123e4567-e89b-12d3-a456-426614174000";
+        String cacheKey = "reviewResult:" + requestId;
+        String cachedJson = "{\"requestId\":\"123e4567-e89b-12d3-a456-426614174000\",\"blogUrl\":\"https://blog.naver.com/kakao_food_fighter/1038913\",\"summaryTitle\":\"Test\",\"summaryText\":\"Test summary\",\"score\":100,\"evidence\":\"Test evidence\"}";
 
-        ReviewCheckResult cachedResult = new ReviewCheckResult();
-        cachedResult.setRequestId(requestId);
-        cachedResult.setBlogUrl(blogUrl);
-        cachedResult.setSummaryTitle("Cached Title");
-        cachedResult.setSummaryText("Cached Text");
-        cachedResult.setScore(100);
-        cachedResult.setEvidence("Cached Evidence");
+        ReviewCheckResult expectedResult = new ReviewCheckResult();
+        expectedResult.setRequestId(requestId);
+        expectedResult.setBlogUrl("https://blog.naver.com/kakao_food_fighter/1038913");
+        expectedResult.setSummaryTitle("Test");
+        expectedResult.setSummaryText("Test summary");
+        expectedResult.setScore(100);
+        expectedResult.setEvidence("Test evidence");
 
-        String cachedJson = "{\"blogUrl\":\"http://example.com/review\",\"summaryTitle\":\"Cached Title\",\"summaryText\":\"Cached content\",\"score\":100,\"evidence\":\"Cached evidence\"}";
-
-        // Mock Redis 캐시에서 JSON 데이터가 존재하는 상황
         when(redisCacheUtil.getCachedResult(cacheKey)).thenReturn(cachedJson);
-        when(objectMapper.readValue(cachedJson, ReviewCheckResult.class)).thenReturn(cachedResult);
+        when(objectMapper.readValue(cachedJson, ReviewCheckResult.class)).thenReturn(expectedResult);
 
         // When
-        ReviewCheckResult result = reviewCheckService.createReviewCheckResult(request);
+        ReviewCheckResult actualResult = reviewCheckService.getReviewCheckResult(requestId);
 
         // Then
-        assertNotNull(result);
-        assertEquals("Cached Title", result.getSummaryTitle());
-        assertEquals("Cached Text", result.getSummaryText());
-        assertEquals(100, result.getScore());
-        verify(redisCacheUtil, times(1)).getCachedResult(cacheKey);
-        verify(reviewQueueService, times(0)).enqueueReviewCheckResult(requestId, blogUrl);
+        assertNotNull(actualResult);
+        assertEquals(expectedResult.getRequestId(), actualResult.getRequestId());
+        assertEquals(expectedResult.getBlogUrl(), actualResult.getBlogUrl());
+        assertEquals(expectedResult.getSummaryTitle(), actualResult.getSummaryTitle());
+        assertEquals(expectedResult.getSummaryText(), actualResult.getSummaryText());
+        assertEquals(expectedResult.getScore(), actualResult.getScore());
+        assertEquals(expectedResult.getEvidence(), actualResult.getEvidence());
     }
 
     @Test
-    void createReviewCheckResult_WhenCacheDoesNotExist() {
+    void getReviewCheckResult_WhenCacheDoesNotExist_ShouldReturnNull() {
         // Given
-        String blogUrl = "https://blog.naver.com/example/123456789";
-        String cacheKey = "reviewResult:" + blogUrl;
-        String requestId = UUID.randomUUID().toString();
-        ReviewCheckRequest request = new ReviewCheckRequest();
-        request.setBlogUrl(blogUrl);
+        String requestId = "123e4567-e89b-12d3-a456-426614174000";
+        String cacheKey = "reviewResult:" + requestId;
 
-        // Mock Redis 캐시에서 데이터가 존재하지 않는 상황
         when(redisCacheUtil.getCachedResult(cacheKey)).thenReturn(null);
 
         // When
-        ReviewCheckResult result = reviewCheckService.createReviewCheckResult(request);
+        ReviewCheckResult result = reviewCheckService.getReviewCheckResult(requestId);
 
         // Then
-        assertNotNull(result);
-        assertEquals("Processing...", result.getSummaryTitle());
-        assertEquals("The Review Analysis is in progress.", result.getSummaryText());
-        assertEquals(-1, result.getScore());
-        verify(redisCacheUtil, times(1)).getCachedResult(cacheKey);
-        verify(reviewQueueService, times(1)).enqueueReviewCheckResult(requestId, blogUrl);
+        assertNull(result);
     }
 
     @Test
-    void cachedReviewCheckResult() throws JsonProcessingException {
+    void getReviewCheckResult_WhenJsonParsingFails_ShouldReturnNull() throws JsonProcessingException {
         // Given
-        String blogUrl = "https://blog.naver.com/example/123456789";
-        ReviewCheckResult result = new ReviewCheckResult();
-        result.setBlogUrl(blogUrl);
-        result.setSummaryTitle("New Title");
-        result.setSummaryText("New Text");
-        result.setScore(50);
-        result.setEvidence("New Evidence");
+        String requestId = "123e4567-e89b-12d3-a456-426614174000";
+        String cacheKey = "reviewResult:" + requestId;
+        String cachedJson = "{\"invalidJson";
 
-        String jsonResult = "{\"blogUrl\":\"http://example.com/review\",\"summaryTitle\":\"New Title\",\"summaryText\":\"New content\",\"score\":85,\"evidence\":\"New evidence\"}";
-        String cacheKey = "reviewResult:" + blogUrl;
-
-        // Mock ObjectMapper 에서 JSON 문자열로 변환
-        when(objectMapper.writeValueAsString(result)).thenReturn(jsonResult);
+        when(redisCacheUtil.getCachedResult(cacheKey)).thenReturn(cachedJson);
+        when(objectMapper.readValue(cachedJson, ReviewCheckResult.class)).thenThrow(JsonProcessingException.class);
 
         // When
-        reviewCheckService.cachedReviewCheckResult(blogUrl, result);
+        ReviewCheckResult result = reviewCheckService.getReviewCheckResult(requestId);
 
         // Then
-        verify(redisCacheUtil, times(1)).cacheResult(cacheKey, jsonResult);
+        assertNull(result);
+        verify(objectMapper, times(1)).readValue(cachedJson, ReviewCheckResult.class);
     }
 }

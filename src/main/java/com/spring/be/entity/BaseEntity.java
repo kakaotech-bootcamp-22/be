@@ -30,14 +30,17 @@ public abstract class BaseEntity {
     @CreatedDate
     @Column(updatable = false)
     @JsonSerialize(using = CustomLocalDateTimeSerializer.class) // Custom serializer 적용
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)  // Default deserializer 적용
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column
+    @JsonSerialize(using = CustomLocalDateTimeSerializer.class) // Custom serializer 적용
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)  // Default deserializer 적용
     private LocalDateTime updatedAt;
 
     @Column
+    @JsonSerialize(using = CustomLocalDateTimeSerializer.class) // Custom serializer 적용
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)  // Default deserializer 적용
     private LocalDateTime deletedAt;
-
-    // Getters and Setters
 }
