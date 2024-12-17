@@ -10,12 +10,12 @@ COPY gradlew .
 # gradlew 실행 권한 부여
 RUN chmod +x ./gradlew
 
-# 의존성만 다운로드
-RUN ./gradlew dependencies
+# 의존성만 다운로드 (--no-daemon 옵션 추가)
+RUN ./gradlew dependencies --no-daemon
 
-# 소스 코드 복사 후 빌드
+# 소스 코드 복사 후 빌드 (--no-daemon 옵션 추가)
 COPY . .
-RUN ./gradlew build -x test
+RUN ./gradlew build -x test --no-daemon
 
 # 실행 스테이지
 FROM openjdk:21-slim
