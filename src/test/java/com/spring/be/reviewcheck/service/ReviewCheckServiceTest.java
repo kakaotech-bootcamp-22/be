@@ -3,6 +3,7 @@ package com.spring.be.reviewcheck.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.be.entity.ReviewCheckResult;
+import com.spring.be.reviewcheck.dto.ReviewCheckResultDto;
 import com.spring.be.reviewcheck.utils.RedisCacheUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,7 +51,7 @@ class ReviewCheckServiceTest {
         when(objectMapper.readValue(cachedJson, ReviewCheckResult.class)).thenReturn(expectedResult);
 
         // When
-        ReviewCheckResult actualResult = reviewCheckService.getReviewCheckResult(requestId);
+        ReviewCheckResultDto actualResult = reviewCheckService.getReviewCheckResult(requestId);
 
         // Then
         assertNotNull(actualResult);
@@ -71,7 +72,7 @@ class ReviewCheckServiceTest {
         when(redisCacheUtil.getCachedResult(cacheKey)).thenReturn(null);
 
         // When
-        ReviewCheckResult result = reviewCheckService.getReviewCheckResult(requestId);
+        ReviewCheckResultDto result = reviewCheckService.getReviewCheckResult(requestId);
 
         // Then
         assertNull(result);
@@ -88,7 +89,7 @@ class ReviewCheckServiceTest {
         when(objectMapper.readValue(cachedJson, ReviewCheckResult.class)).thenThrow(JsonProcessingException.class);
 
         // When
-        ReviewCheckResult result = reviewCheckService.getReviewCheckResult(requestId);
+        ReviewCheckResultDto result = reviewCheckService.getReviewCheckResult(requestId);
 
         // Then
         assertNull(result);
