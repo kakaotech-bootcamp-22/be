@@ -27,7 +27,7 @@ spec:
       labels:
         app: backend-server
       annotations:
-        buildNumber: "${BUILD_NUMBER}"  # 빌드 번호를 통한 강제 롤아웃
+        buildNumber: "${TAG}"
     spec:
       serviceAccountName: backend-server
       containers:
