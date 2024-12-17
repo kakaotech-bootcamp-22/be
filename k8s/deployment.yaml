@@ -32,7 +32,7 @@ spec:
       serviceAccountName: backend-server
       containers:
       - name: backend-server
-        image: ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/backend-server:${BUILD_NUMBER}  # latest 대신 빌드 번호 사용
+        image: ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/backend-server:${BUILD_NUMBER}
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -107,6 +107,7 @@ spec:
       containers:
       - name: redis
         image: redis:7.2-alpine
+        args: ["--protected-mode", "no", "--bind", "0.0.0.0"]  # Redis 설정 추가
         ports:
         - containerPort: 6379
         resources:
