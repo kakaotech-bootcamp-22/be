@@ -16,7 +16,8 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",    // 개발용 도메인
-                "https://gotitguy.com/"  // 프로덕션 도메인
+                "https://gotitguy.com/",  // 프로덕션 도메인
+                "http://3.38.199.187:8000/" // AI서버
         ));
         configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
