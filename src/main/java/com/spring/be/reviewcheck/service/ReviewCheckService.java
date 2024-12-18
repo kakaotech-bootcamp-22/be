@@ -152,14 +152,9 @@ public class ReviewCheckService {
         String cacheKey = "reviewResult:" + requestId;
 
         // Redis에서 결과 조회
-        String cachedJson = redisCacheUtil.getCachedResult(cacheKey);
-        if (cachedJson != null) {
-            try {
-                ReviewCheckResult cachedResult = objectMapper.readValue(cachedJson, ReviewCheckResult.class);
-                return toResultDto(cachedResult, "Completed");
-            } catch (JsonProcessingException e) {
-                System.err.println("Error parsing cached JSON for requestId " + requestId + ": " + e.getMessage());
-            }
+        ReviewCheckResult cachedResult = redisCacheUtil.getCachedResult(cacheKey, ReviewCheckResult.class);
+        if (cachedResult != null) {
+            return toResultDto(cachedResult, "Completed");
         }
 
         // 결과가 없는 경우 null 반환

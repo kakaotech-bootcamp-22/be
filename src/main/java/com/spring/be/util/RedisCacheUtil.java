@@ -1,21 +1,20 @@
 package com.spring.be.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
 @Component
+@RequiredArgsConstructor
 public class RedisCacheUtil {
 
-    @Autowired
     private final RedisTemplate<String, String> redisTemplate;
+    private final ObjectMapper objectMapper;
 
-    public RedisCacheUtil(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
-
+    // 데이터 캐싱
     public void cacheResult(String key, String jsonValue) {
         try {
             // 2시간 동안 캐싱
@@ -26,6 +25,7 @@ public class RedisCacheUtil {
         }
     }
 
+    // 캐싱된 데이터 가져오기 (일반적인 문자열 반환)
     public String getCachedResult(String key) {
         try {
             String value = redisTemplate.opsForValue().get(key);
@@ -37,6 +37,23 @@ public class RedisCacheUtil {
             return value;
         } catch (Exception e) {
             System.err.println("[Redis] Error retrieving cache - Key: " + key + ", Error: " + e.getMessage());
+            return null;
+        }
+    }
+
+    // 캐싱된 데이터를 제네릭 타입으로 변환하여 가져오기
+    public <T> T getCachedResult(String key, Class<T> clazz) {
+        try {
+            String jsonValue = redisTemplate.opsForValue().get(key);
+            if (jsonValue != null) {
+                System.out.println("[Redis] Cache hit - Key: " + key + ", Value: " + jsonValue);
+                return objectMapper.readValue(jsonValue, clazz); // JSON을 객체로 변환
+            } else {
+                System.out.println("[Redis] Cache miss - Key: " + key);
+                return null;
+            }
+        } catch (Exception e) {
+            System.err.println("[Redis] Error retrieving or parsing cache - Key: " + key + ", Error: " + e.getMessage());
             return null;
         }
     }
