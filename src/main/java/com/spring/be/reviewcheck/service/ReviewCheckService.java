@@ -7,7 +7,7 @@ import com.spring.be.reviewcheck.dto.ReviewCheckRequestDto;
 import com.spring.be.reviewcheck.dto.ReviewCheckResponseDto;
 import com.spring.be.reviewcheck.dto.ReviewCheckResultDto;
 import com.spring.be.reviewcheck.repository.ReviewCheckResultRepository;
-import com.spring.be.reviewcheck.utils.RedisCacheUtil;
+import com.spring.be.util.RedisCacheUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;

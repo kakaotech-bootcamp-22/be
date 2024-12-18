@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.be.entity.ReviewCheckResult;
 import com.spring.be.reviewcheck.dto.ReviewCheckResultDto;
-import com.spring.be.reviewcheck.utils.RedisCacheUtil;
+import com.spring.be.util.RedisCacheUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
