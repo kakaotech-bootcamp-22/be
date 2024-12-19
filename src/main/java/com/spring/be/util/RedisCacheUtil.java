@@ -1,10 +1,12 @@
 package com.spring.be.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -55,6 +57,21 @@ public class RedisCacheUtil {
         } catch (Exception e) {
             System.err.println("[Redis] Error retrieving or parsing cache - Key: " + key + ", Error: " + e.getMessage());
             return null;
+        }
+    }
+
+    // Redis 연결 확인
+    @PostConstruct
+    public void testConnection() {
+        try {
+            if (redisTemplate.getConnectionFactory() != null) {
+                redisTemplate.getConnectionFactory().getConnection().ping();
+                System.out.println("[Redis] Successfully connected to Redis");
+            } else {
+                System.err.println("[Redis] ConnectionFactory is null. Unable to connect to Redis.");
+            }
+        } catch (Exception e) {
+            System.err.println("[Redis] Unable to connect to Redis: " + e.getMessage());
         }
     }
 }
