@@ -74,4 +74,12 @@ public class RedisCacheUtil {
             System.err.println("[Redis] Unable to connect to Redis: " + e.getMessage());
         }
     }
+
+    // Redis 연결 정보 로그
+    @PostConstruct
+    public void logRedisConnectionInfo() {
+        System.out.println("[Redis] Host: " + System.getenv("SPRING_REDIS_HOST"));
+        System.out.println("[Redis] Port: " + System.getenv("SPRING_REDIS_PORT"));
+        testConnection();
+    }
 }
