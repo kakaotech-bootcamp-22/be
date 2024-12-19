@@ -58,7 +58,7 @@ dependencies {
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.data:spring-data-redis'
-    implementation 'io.lettuce.core:lettuce-core'
+    implementation 'io.lettuce.core:lettuce-core:6.5.1'
 }
 
 tasks.named('test') {
