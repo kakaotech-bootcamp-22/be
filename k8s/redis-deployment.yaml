@@ -10,7 +10,7 @@ spec:
   ports:
   - port: 6379
     targetPort: 6379
-  type: ClusterIP
+  type: LoadBalancer    # LoadBalancer로 설정
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -31,7 +31,13 @@ spec:
       containers:
       - name: redis
         image: redis:7.2-alpine
-        args: ["--protected-mode", "no", "--bind", "0.0.0.0"]
+        args:
+          - "--protected-mode"
+          - "no"
+          - "--bind"
+          - "0.0.0.0"    
+          - "--requirepass"
+          - "${REDIS_PASSWORD}" 
         ports:
         - containerPort: 6379
         resources:
