@@ -81,6 +81,12 @@ public class ReviewCheckService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<ReviewCheckRequestDto> requestEntity = new HttpEntity<>(requestDto, headers);
 
+            // JSON 변환 및 출력
+            String requestJson = objectMapper.writeValueAsString(requestDto);
+            System.out.println("!!!Sending request to AI Server:");
+            System.out.println("!!!AI server URL: " + aiServerUrl + "/review-check");
+            System.out.println("!!!Payload: " + requestJson);
+
             // AI 서버에 요청 전송
             restTemplate.postForEntity(aiServerUrl + "/review-check", requestEntity, Void.class);
             System.out.println("Request to AI Server: " + requestId);
