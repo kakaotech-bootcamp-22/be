@@ -38,12 +38,12 @@ public class KakaoAuthController {
     @PostMapping("/token")
     public ResponseEntity<KakaoAuthResponseDto> handleKakaoToken(@RequestBody Map<String, String> request) {
         String authorizationCode = request.get("code");
+        String clientRedirectUri = request.get("redirectUri");
         if (authorizationCode == null || authorizationCode.isEmpty()) {
             return ResponseEntity.badRequest().body(null);
         }
-
         // AuthService에 Kakao 인증 처리를 위임
-        KakaoAuthResponseDto responseDto = authService.authenticateKakaoUser(authorizationCode);
+        KakaoAuthResponseDto responseDto = authService.authenticateKakaoUser(authorizationCode, clientRedirectUri);
 
         if (responseDto == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -51,7 +51,7 @@ public class KakaoAuthController {
 
         // JWT를 쿠키에 설정
         ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", responseDto.getJwtToken())
-                .httpOnly(true)
+                .httpOnly(false)// 테스트용 - false
                 .secure(false)
                 .path("/")
                 .maxAge(60 * 60 * 24)
@@ -59,7 +59,7 @@ public class KakaoAuthController {
                 .build();
 
         return ResponseEntity.ok()
-                .header("Set-Cookie", jwtCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .body(responseDto);
     }
 }

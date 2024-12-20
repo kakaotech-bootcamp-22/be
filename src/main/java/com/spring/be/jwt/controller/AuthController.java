@@ -2,6 +2,7 @@ package com.spring.be.jwt.controller;
 
 import com.spring.be.jwt.config.JwtUtils;
 import com.spring.be.jwt.service.AuthService;
+import com.spring.be.user.dto.UserResponseDto;
 import com.spring.be.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -46,5 +47,10 @@ public class AuthController {
     public ResponseEntity<?> googleLogout(@RequestHeader("Cookie") String cookieHeader) {
         String token = CookieUtils.extractTokenFromCookie(cookieHeader, "jwtToken");
         return authService.performGoogleLogout(token);
+    }
+
+    @GetMapping("/delete")
+    public ResponseEntity<?> deleteUser(@CookieValue("jwtToken") String jwtToken) {
+        return authService.deleteUser(jwtToken);
     }
 }
