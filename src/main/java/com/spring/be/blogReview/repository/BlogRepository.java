@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 public interface BlogRepository extends JpaRepository<Blog, Long> {
     @Query("SELECT b.reviewCount FROM Blog b WHERE b.blogId = :blogId")
     Integer findReviewCountByBlogId(Long blogId);
+
+    Blog findByBlogUrl(String blogUrl);
 }
