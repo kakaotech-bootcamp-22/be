@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserResponseDto {
-    private boolean isLoggedIn;
+    private boolean success;
     private String message;
 }

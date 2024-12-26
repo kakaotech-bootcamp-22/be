@@ -2,7 +2,10 @@ package com.spring.be.user.service;
 
 import com.spring.be.blogReview.service.BlogReviewService;
 import com.spring.be.entity.User;
+import com.spring.be.jwt.config.JwtUtils;
+import com.spring.be.jwt.service.AuthService;
 import com.spring.be.user.dto.UserActivityCountsDto;
+import com.spring.be.user.dto.UserResponseDto;
 import com.spring.be.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,9 +28,15 @@ public class UserService {
         if (existingUser != null) {
             // 기존 사용자 정보 업데이트
             existingUser.setAccessToken(AccessToken);
+            if (existingUser.getDeletedAt() != null){
+                existingUser.setNickname(nickname);
+                existingUser.setUserImage(profileImage);
+            }
             existingUser.setDeletedAt(null);
             return userRepository.save(existingUser);
         }
+
+
         try {
             User newUser = new User(platform, socialId, nickname, profileImage, AccessToken, email);
             return userRepository.save(newUser);
@@ -64,9 +73,12 @@ public class UserService {
         if (user == null) {
             return false;
         }
-
+        user.setAccessToken(null);
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
         return true;
     }
+
+
+
 }
