@@ -45,7 +45,7 @@ public class GoogleAuthController {
 
         // JWT 쿠키 설정
         ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", responseDto.getJwtToken())
-                .httpOnly(true)
+                .httpOnly(false)// 테스트용 - false
                 .secure(false) // 필요에 따라 설정
                 .path("/")
                 .maxAge(60 * 60 * 24)
@@ -53,7 +53,7 @@ public class GoogleAuthController {
                 .build();
 
         return ResponseEntity.ok()
-                .header("Set-Cookie", jwtCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .body(responseDto);
     }
 }

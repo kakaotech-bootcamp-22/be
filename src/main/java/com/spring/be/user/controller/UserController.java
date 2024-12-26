@@ -2,6 +2,7 @@ package com.spring.be.user.controller;
 
 import com.spring.be.entity.User;
 import com.spring.be.jwt.config.JwtUtils;
+import com.spring.be.jwt.service.AuthService;
 import com.spring.be.user.dto.UpdateProfileResponseDto;
 import com.spring.be.user.dto.UserActivityCountsDto;
 import com.spring.be.user.dto.UserResponseDto;
@@ -25,7 +26,6 @@ import java.util.Map;
 public class UserController {
 
     private final JwtUtils jwtUtils;
-    private final S3Service s3Service;
     private final UserService userService;
     private final UserRepository userRepository;
 
@@ -64,19 +64,6 @@ public class UserController {
         UserActivityCountsDto activityCounts = userService.getUserActivityCounts(userId);
         return ResponseEntity.ok(activityCounts);
     }
-
-    @GetMapping("/delete")
-    public ResponseEntity<UserResponseDto> deleteUser(@CookieValue("jwtToken") String jwtToken) {
-        BigInteger socialId = extractSocialIdFromCookie(jwtToken);
-
-        boolean isDeleted = userService.deleteUserBySocialId(socialId);
-
-        if (!isDeleted) {
-            return ResponseEntity.ok(new UserResponseDto(false, "User not found."));
-        }
-        return ResponseEntity.ok(new UserResponseDto(true, "User deleted successfully."));
-    }
-
 
     private BigInteger extractTokenFromCookie(String jwtToken) {
         if (jwtToken == null || jwtToken.isEmpty()) {
