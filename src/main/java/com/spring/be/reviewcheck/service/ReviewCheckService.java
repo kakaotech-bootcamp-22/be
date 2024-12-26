@@ -75,6 +75,7 @@ public class ReviewCheckService {
             // 요청 데이터 생성
             ReviewCheckRequestDto requestDto = new ReviewCheckRequestDto();
             requestDto.setBlogUrl(blogUrl);
+            requestDto.setRequestId(requestId);
 
             // HTTP 요청 생성
             HttpHeaders headers = new HttpHeaders();

@@ -11,5 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ReviewCheckRequestDto {
     @NotBlank
+    private String requestId;
     private String blogUrl;
 }
